@@ -1,0 +1,20 @@
+[package]
+name = "STSYS"
+version = "0.1.0"
+authors = ["Ricard Lado"]
+
+description = "Structural FEM analysis software"
+categories = ["science"]
+keywords = ["FEM", "structures", "analysis"]
+license = "MIT"
+repository = "https://github.com/rlado/STSYS"
+readme = "README.md"
+edition = "2021"
+exclude = [".github/",]
+
+[lib]
+name = "STSYS_lib"
+path = "src/lib.rs"
+
+[dependencies]
+rsparse = "0.1.8"

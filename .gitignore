@@ -1,0 +1,4 @@
+/target
+
+# Ignored file types
+*.lock
