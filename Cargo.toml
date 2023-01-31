@@ -1,5 +1,5 @@
 [package]
-name = "STSYS"
+name = "stsys"
 version = "0.1.0"
 authors = ["Ricard Lado"]
 
@@ -13,8 +13,8 @@ edition = "2021"
 exclude = [".github/",]
 
 [lib]
-name = "STSYS_lib"
+name = "stsys_lib"
 path = "src/lib.rs"
 
 [dependencies]
-rsparse = "0.1.8"
+rsparse = "0.1.9"
