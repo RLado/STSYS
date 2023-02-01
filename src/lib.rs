@@ -3,3 +3,4 @@
 
 pub mod elements;
 pub mod mat_math;
+pub mod utils;

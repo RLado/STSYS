@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: STSYS
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - family-names: Lado-Roigé
+    given-names: Ricard
+    orcid: 'https://orcid.org/0000-0002-6421-7351'
+repository-code: 'https://github.com/RLado/STSYS'
+abstract: >-
+  Structural FEM analysis software.
+keywords:
+  - engineering
+  - structures
+  - FEM
+license: MIT
+version: 0.1.0
+date-released: '2023-02-01'
