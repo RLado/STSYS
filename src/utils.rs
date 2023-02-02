@@ -35,3 +35,11 @@ impl<T: Num> Coord3D<T>{
         return r;
     }    
 }
+
+/// Prints a matrix
+/// 
+pub fn print_matrix<T: Num>(vec: &Vec<Vec<T>>) {
+    for row in vec {
+        println!("{:?}", row);
+    }
+}
