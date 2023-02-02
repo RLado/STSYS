@@ -3,7 +3,7 @@
 //! 
 //! Elements are generally named after the number of DoF they have. 
 
-use crate::{utils::Coord3D, mat_math::scxmat};
+use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec}};
 
 /// Calculate the distance between two `f64` points in 3D space [a -> b]
 /// 
@@ -71,6 +71,7 @@ impl Beam12{
 
         // calculate elements properties
         let l = dist_3df(&nodes[0], &nodes[1]); //elem_len
+        // let a = l/2.;
         
         // populate the stiffness matrix
         let phi_y = 12.*(elem.e*elem.i.y/(elem.g*elem.a.y*l.powi(2)));
@@ -113,16 +114,47 @@ impl Beam12{
         ];
 
         // populate the rotation matrix
+        // define 3rd node (must be in the xy plane, but not on the x-axis)
+        // -- make a vector that goes from node 1 to node 2 and divide it by 2
+        let u = scxvec(0.5, &add_vec(&elem.nodes[1].to_vec(), &elem.nodes[0].to_vec(), 1., -1.));
+        // -- add unit y-axis component to the vector
+        let v = add_vec(&u, &vec![0.,1.,0.], 1., 1.);
+        // -- apply the resulting vector to node 1
+        let n3 = Coord3D::new(Some(add_vec(&elem.nodes[0].to_vec(), &v, 1., 1.)));
+        let n2 = &elem.nodes[1];
+        let n1 = &elem.nodes[0];
 
+        // calculate values for T3
+        let x21 = n2.x-n1.x;
+        let y21 = n2.y-n1.y;
+        let z21 = n2.z-n1.z;
+        let x31 = n3.x-n1.x;
+        let y31 = n3.y-n1.y;
+        let z31 = n3.z-n1.z;
+
+        let a123 = f64::powf((y21*z31-y31*z21).powi(2)+(z21*x31-z31*x21).powi(2)+(x21*y31-x31*y21).powi(2), 0.5);
+
+        let lx = x21/l;
+        let mx = y21/l;
+        let nx = z21/l;
+
+        let lz = 1./(2.*a123)*(y21*z31-y31*z21);
+        let mz = 1./(2.*a123)*(z21*x31-z31*x21);
+        let nz = 1./(2.*a123)*(x21*y31-x31*y21);
+
+        let ly = mz*nx-nz*mx;
+        let my = nz*lx-lz*nx;
+        let ny = lz*mx-mz*lx;
 
         // the 12x12 rotation matrix is made up of 4 copies of:
-        /*
-        let mut rot_t3 = vec![
-            vec![],
-            vec![],
-            vec![],
+        let rot_t3 = vec![
+            vec![lx, mx, nx],
+            vec![ly, my, ny],
+            vec![lz, mz, nz],
         ];
-        */
+
+        // assemble the 12x12 rotation matrix
+
 
         // return the element
         return elem;

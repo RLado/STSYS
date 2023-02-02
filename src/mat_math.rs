@@ -203,12 +203,14 @@ pub fn scxvec<T: Num + std::ops::Mul<Output = T>>(scalar: T, v: &Vec<T>) -> Vec<
 ///
 /// let b = vec![1, 2, 3];
 ///
-/// let c = add_vec(&a, &b);
+/// let c = add_vec(&a, &b, 1, 1);
 ///
 /// assert_eq!(&c, &vec![2, 4, 6]);
 /// ```
 ///
-pub fn add_vec<T: Num + std::ops::Add<Output = T>>(a: &Vec<T>, b: &Vec<T>) -> Vec<T> {
+pub fn add_vec<T: Num>(a: &Vec<T>, b: &Vec<T>, alpha: T, beta: T) -> Vec<T> 
+where <T as std::ops::Mul>::Output: std::ops::Add<Output = T>
+{
     let len = a.len();
     if len != b.len() {
         panic!("Vector dimensions do not match.");
@@ -216,7 +218,7 @@ pub fn add_vec<T: Num + std::ops::Add<Output = T>>(a: &Vec<T>, b: &Vec<T>) -> Ve
 
     let mut c = Vec::with_capacity(len);
     for i in 0..len {
-        c.push(a[i] + b[i]);
+        c.push(alpha*a[i] + beta*b[i]);
     }
     return c;
 }

@@ -33,7 +33,13 @@ impl<T: Num> Coord3D<T>{
         }
 
         return r;
-    }    
+    }
+    
+    /// Convert object to Vec
+    /// 
+    pub fn to_vec(&self) -> Vec<T>{
+        return vec![self.x, self.y, self.z];
+    }
 }
 
 /// Prints a matrix
