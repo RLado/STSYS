@@ -54,6 +54,8 @@ pub trait Num:
     Zero
     + std::ops::Add
     + std::ops::AddAssign
+    + std::ops::Sub
+    + std::ops::SubAssign
     + std::ops::Mul
     + std::ops::MulAssign
     + Copy
@@ -221,6 +223,62 @@ where <T as std::ops::Mul>::Output: std::ops::Add<Output = T>
         c.push(alpha*a[i] + beta*b[i]);
     }
     return c;
+}
+
+/// Dense vector dot product
+/// 
+/// ```
+/// use stsys_lib::mat_math::dot_prod;
+///
+/// let a = vec![0.9649, 0.1576, 0.9706];
+///
+/// let b = vec![0.9572, 0.4854, 0.8003];
+///
+/// let c = dot_prod(&a, &b);
+///
+/// assert!((c - 1.7768) < 1e-4);
+/// ```
+/// 
+pub fn dot_prod<T:Num + std::ops::Mul<Output = T>>(a: &Vec<T>, b: &Vec<T>) -> T{
+    let len = a.len();
+    if len != b.len() {
+        panic!("Vector dimensions do not match.");
+    }
+
+    let mut c = T::zero();
+    for i in 0..len {
+        c += a[i]*b[i];
+    }
+
+    return c;
+}
+
+/// Dense vector cross product
+/// 
+/// ```
+/// use stsys_lib::mat_math::cross_prod_3d;
+///
+/// let a = vec![0.9649, 0.1576, 0.9706];
+///
+/// let b = vec![0.9572, 0.4854, 0.8003];
+///
+/// let c = cross_prod_3d(&a, &b);
+///
+/// assert!((c[0] - -0.3450) < 1e-4);     
+/// assert!((c[1] - 0.1568) < 1e-4);
+/// assert!((c[2] - 0.3175) < 1e-4);
+/// ```
+/// 
+pub fn cross_prod_3d<T:Num + std::ops::Mul<Output = T> + std::ops::Sub<Output = T>>(a: &Vec<T>, b: &Vec<T>) -> Vec<T>{
+    let len = a.len();
+    if len != b.len() {
+        panic!("Vector dimensions do not match.");
+    }
+    if len != 3 {
+        panic!("Vector dimension must be 3. {} given", len);
+    }
+
+    return vec![a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
 
 //// Dense matrix add
