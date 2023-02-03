@@ -324,10 +324,10 @@ fn beam12_1() {
     // square bar 1m long 50mmx50mm
     let elem = elements::Beam12::new(
         [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
-        210000., // N/mm²
-        79000., // N/mm²
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
-        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*1000., 50.*1000.])), //mm²
     );
 

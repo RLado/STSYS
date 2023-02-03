@@ -3,7 +3,9 @@
 //! 
 //! Elements are generally named after the number of DoF they have. 
 
-use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec, mul_mat, transpose}};
+use std::f64::consts::PI;
+
+use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec, mul_mat, transpose, cross_prod_3d, dot_prod, add_mat}};
 
 /// Calculate the distance between two `f64` points in 3D space [a -> b]
 /// 
@@ -20,7 +22,61 @@ use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec, mul_mat, transpo
 /// ```
 /// 
 pub fn dist_3df(a: &Coord3D<f64>, b: &Coord3D<f64>) -> f64 {
-    return f64::powf((b.x-a.x).powi(2)+(b.y-a.y).powi(2)+(b.z-a.z).powi(2), 0.5);
+    return f64::sqrt((b.x-a.x).powi(2)+(b.y-a.y).powi(2)+(b.z-a.z).powi(2));
+}
+
+/// Vector norm
+/// 
+/// # Example:
+/// ```
+/// use stsys_lib::utils::Coord3D;
+/// use stsys_lib::elements::norm;
+/// 
+/// let a = vec![1.,2.,3.];
+/// 
+/// assert!(norm(&a) == 14f64.powf(0.5));
+/// ```
+/// 
+pub fn norm(v: &Vec<f64>) -> f64 {
+    let mut n = 0.;
+    for i in v {
+        n += i.powi(2);
+    }
+    return n.sqrt();
+}
+
+/// Align a vector with a direction
+/// # Parameters:
+/// - v: vector
+/// - d: direction
+/// 
+pub fn align_vector_3df(v: &Coord3D<f64>, d: &Coord3D<f64>) -> Vec<Vec<f64>> {
+    // Normalize v and d
+    let v = scxvec(norm(&v.to_vec()).powi(-1), &v.to_vec());
+    let d = scxvec(norm(&d.to_vec()).powi(-1), &d.to_vec());
+
+    let w = cross_prod_3d(&v, &d);
+    let c = dot_prod(&v, &d);
+
+    let h = 1. / (1. + c);
+
+    let vmat = vec![
+        vec![0., -w[2], w[1]],
+        vec![w[2], 0., -w[0]],
+        vec![-w[1], w[0], 0.],
+    ];
+
+    let eye = vec![
+        vec![1., 0., 0.],
+        vec![0., 1., 0.],
+        vec![0., 0., 1.],
+    ];
+
+    let vmat_sq = mul_mat(&vmat, &vmat);
+
+    let r = add_mat(&add_mat(&eye, &vmat), &scxmat(h, &vmat_sq));
+
+    return r;
 }
 
 /// 3D Timoshenko beam element
@@ -30,14 +86,14 @@ pub fn dist_3df(a: &Coord3D<f64>, b: &Coord3D<f64>) -> f64 {
 pub struct Beam12{
     /// Nodes
     nodes: [Coord3D<f64>;2], 
+    /// Element rotation with respect of local X axis (deg)
+    x_rot: f64,
     /// Elastic modulus
-    e: f64,
+    e: Coord3D<f64>,
     /// Shear modulus
-    g: f64,
-    /// Moment of inertia {None,Iy,Iz}
+    g: Coord3D<f64>,
+    /// Moment of inertia {Torsional constant of cross-section [m^4](j),Iy,Iz}
     i: Coord3D<f64>,
-    /// Torsional constant of cross-section [m^4]
-    j: f64,
     /// Area {Ax,Ay,Az}
     a: Coord3D<f64>,
     /// Stiffness matrix (local axis)
@@ -51,22 +107,22 @@ pub struct Beam12{
 impl Beam12{
     /// Create a new element
     /// 
-    /// # Arguments:
+    /// # Parameters:
     /// - nodes: Nodes defining the element's span. eg. [[0,0,0],[1,0,0]]
-    /// - e: Elastic modulus
-    /// - g: Shear modulus
-    /// - i: Moment of inertia {Ix,Iy,Iz}
-    /// - j: Torsional constant of cross-section
+    /// - x_rot: Element rotation with respect of local X axis (deg)
+    /// - e: Elastic modulus {Ex, Ey, Ez}
+    /// - g: Shear modulus {Gx, Gy, Gz}
+    /// - i: Moment of inertia {Ix,Iy,Iz}. Note: Ix = Torsional constant of cross-section (j)
     /// - a: Area {Ax,Ay,Az}
     /// 
-    pub fn new(nodes: [Coord3D<f64>;2], e: f64, g: f64, i: Coord3D<f64>, j: f64, a: Coord3D<f64>) -> Beam12 {
+    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, a: Coord3D<f64>) -> Beam12 {
         // create an instance of Beam12
         let mut elem = Beam12{
             nodes: nodes,
+            x_rot: x_rot,
             e: e,
             g: g,
             i: i,
-            j: j,
             a: a,
             stff_l: Vec::new(),
             stff_g: Vec::new(),
@@ -76,13 +132,49 @@ impl Beam12{
         // calculate elements properties
         let l = dist_3df(&nodes[0], &nodes[1]); //elem_len
         // let a = l/2.;
-        
+
+        // populate the rotation matrix
+        let p2 = vec![l, 0., 0.]; // p1 = [0., 0., 0.]
+        let p3 = vec![0., 1., 0.];
+
+        // align p3 to specified beam orientation
+        let rot_x = vec![
+            vec![1., 0., 0.],
+            vec![0., f64::cos(elem.x_rot/180.*PI), -f64::sin(elem.x_rot/180.*PI)],
+            vec![0., f64::sin(elem.x_rot/180.*PI), f64::cos(elem.x_rot/180.*PI)],
+        ];
+        let p3 = &transpose(&mul_mat(&rot_x, &transpose(&vec![p3])))[0];
+
+        // rotate properties to align with beam orientation
+        let e_temp = &transpose(&mul_mat(&rot_x, &transpose(&vec![elem.e.to_vec()])))[0];
+        let g_temp = &transpose(&mul_mat(&rot_x, &transpose(&vec![elem.g.to_vec()])))[0];
+        let i_temp = &transpose(&mul_mat(&rot_x, &transpose(&vec![elem.i.to_vec()])))[0];
+        elem.e = Coord3D::new(Some(e_temp.to_vec()));
+        elem.g = Coord3D::new(Some(g_temp.to_vec()));
+        elem.i = Coord3D::new(Some(i_temp.to_vec()));
+
+        // create a transformation matrix T3 that aligns P with nodes
+        let t3 = align_vector_3df(&Coord3D::new(Some(p2)), &Coord3D::new(Some(add_vec(&elem.nodes[1].to_vec(), &elem.nodes[0].to_vec(), 1., -1.))));
+
+        // assemble the 12x12 rotation matrix
+        //  [ T3  0   0   0 ]
+        //  [ 0   T3  0   0 ]
+        //  [ 0   0   T3  0 ]
+        //  [ 0   0   0   T3]
+        for d in (0..12).step_by(3){
+            for i in 0..3{
+                for j in 0..3{
+                    elem.rot[d+i][d+j] = t3[i][j];
+                }
+            }
+        }
+
         // populate the stiffness matrix
-        let phi_y = 12.*(elem.e*elem.i.y/(elem.g*elem.a.y*l.powi(2)));
-        let phi_z = 12.*(elem.e*elem.i.z/(elem.g*elem.a.z*l.powi(2)));
+        let phi_y = 12.*(elem.e.y*elem.i.y/(elem.g.y*elem.a.y*l.powi(2)));
+        let phi_z = 12.*(elem.e.z*elem.i.z/(elem.g.z*elem.a.z*l.powi(2)));
 
         let kz = scxmat(
-            elem.e*elem.i.z/((1. + phi_y)*l.powi(2)), 
+            elem.e.z*elem.i.z/((1. + phi_y)*l.powi(2)), 
             &vec![
                 vec![12., 6.*l, -12., 6.*l],
                 vec![0., (4.+phi_y)*l.powi(2), -6.*l, (2.-phi_y)*l.powi(2)],
@@ -91,7 +183,7 @@ impl Beam12{
             ]
         );
         let ky = scxmat(
-            elem.e*elem.i.y/((1. + phi_z)*l.powi(2)), 
+            elem.e.y*elem.i.y/((1. + phi_z)*l.powi(2)), 
             &vec![
                 vec![12., -6.*l, -12., -6.*l],
                 vec![0., (4.+phi_z)*l.powi(2), 6.*l, (2.-phi_z)*l.powi(2)],
@@ -100,8 +192,8 @@ impl Beam12{
             ]
         );
 
-        let eal = elem.e*elem.a.x/l;
-        let gjl = elem.g*elem.j/l;
+        let eal = elem.e.x*elem.a.x/l;
+        let gjl = elem.g.x*elem.i.x/l;
         elem.stff_l = vec![
             vec![eal, 0., 0., 0., 0., 0., -eal, 0., 0., 0., 0., 0.], // 1
             vec![0., kz[0][0], 0., 0., 0., kz[0][1], 0., kz[0][2], 0., 0., 0., kz[0][3]], // 2
@@ -116,59 +208,6 @@ impl Beam12{
             vec![0., 0., ky[0][3], 0., ky[1][3], 0., 0., 0., ky[2][3], 0., ky[3][3], 0.], // 11
             vec![0., kz[0][3], 0., 0., 0., kz[1][3], 0., kz[2][3], 0., 0., 0., kz[3][3]], // 12
         ];
-
-        // populate the rotation matrix
-        // define 3rd node (must be in the xy plane, but not on the x-axis)
-        // -- make a vector that goes from node 1 to node 2 and divide it by 2
-        let u = scxvec(0.5, &add_vec(&elem.nodes[1].to_vec(), &elem.nodes[0].to_vec(), 1., -1.));
-        // -- add unit y-axis component to the vector
-        let v = add_vec(&u, &vec![0.,1.,0.], 1., 1.);
-        // -- apply the resulting vector to node 1
-        let n3 = Coord3D::new(Some(add_vec(&elem.nodes[0].to_vec(), &v, 1., 1.)));
-        let n2 = &elem.nodes[1];
-        let n1 = &elem.nodes[0];
-
-        // calculate values for T3
-        let x21 = n2.x-n1.x;
-        let y21 = n2.y-n1.y;
-        let z21 = n2.z-n1.z;
-        let x31 = n3.x-n1.x;
-        let y31 = n3.y-n1.y;
-        let z31 = n3.z-n1.z;
-
-        let a123 = f64::powf((y21*z31-y31*z21).powi(2)+(z21*x31-z31*x21).powi(2)+(x21*y31-x31*y21).powi(2), 0.5);
-
-        let lx = x21/l;
-        let mx = y21/l;
-        let nx = z21/l;
-
-        let lz = 1./(2.*a123)*(y21*z31-y31*z21);
-        let mz = 1./(2.*a123)*(z21*x31-z31*x21);
-        let nz = 1./(2.*a123)*(x21*y31-x31*y21);
-
-        let ly = mz*nx-nz*mx;
-        let my = nz*lx-lz*nx;
-        let ny = lz*mx-mz*lx;
-
-        // the 12x12 rotation matrix is made up of 4 copies of:
-        let rot_t3 = vec![
-            vec![lx, mx, nx],
-            vec![ly, my, ny],
-            vec![lz, mz, nz],
-        ];
-
-        // assemble the 12x12 rotation matrix
-        //  [ T3  0   0   0 ]
-        //  [ 0   T3  0   0 ]
-        //  [ 0   0   T3  0 ]
-        //  [ 0   0   0   T3]
-        for d in (0..12).step_by(3){
-            for i in 0..3{
-                for j in 0..3{
-                    elem.rot[d+i][d+j] = rot_t3[i][j];
-                }
-            }
-        }
 
         // transform local stiffness matrix into global stiffness matrix
         elem.stff_g = mul_mat(&mul_mat(&transpose(&elem.rot), &elem.stff_l), &elem.rot);
