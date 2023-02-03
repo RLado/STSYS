@@ -3,7 +3,7 @@
 //! 
 //! Elements are generally named after the number of DoF they have. 
 
-use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec}};
+use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec, mul_mat, transpose}};
 
 /// Calculate the distance between two `f64` points in 3D space [a -> b]
 /// 
@@ -40,8 +40,10 @@ pub struct Beam12{
     j: f64,
     /// Area {Ax,Ay,Az}
     a: Coord3D<f64>,
-    /// Stiffness matrix
-    pub stff: Vec<Vec<f64>>,
+    /// Stiffness matrix (local axis)
+    pub stff_l: Vec<Vec<f64>>,
+    /// Stiffness matrix (global axis)
+    pub stff_g: Vec<Vec<f64>>,
     /// Rotation matrix
     pub rot: Vec<Vec<f64>>,
 }
@@ -54,6 +56,7 @@ impl Beam12{
     /// - e: Elastic modulus
     /// - g: Shear modulus
     /// - i: Moment of inertia {Ix,Iy,Iz}
+    /// - j: Torsional constant of cross-section
     /// - a: Area {Ax,Ay,Az}
     /// 
     pub fn new(nodes: [Coord3D<f64>;2], e: f64, g: f64, i: Coord3D<f64>, j: f64, a: Coord3D<f64>) -> Beam12 {
@@ -65,8 +68,9 @@ impl Beam12{
             i: i,
             j: j,
             a: a,
-            stff: Vec::new(),
-            rot: Vec::new(),
+            stff_l: Vec::new(),
+            stff_g: Vec::new(),
+            rot: vec![vec![0.;12];12],
         };
 
         // calculate elements properties
@@ -98,7 +102,7 @@ impl Beam12{
 
         let eal = elem.e*elem.a.x/l;
         let gjl = elem.g*elem.j/l;
-        elem.stff = vec![
+        elem.stff_l = vec![
             vec![eal, 0., 0., 0., 0., 0., -eal, 0., 0., 0., 0., 0.], // 1
             vec![0., kz[0][0], 0., 0., 0., kz[0][1], 0., kz[0][2], 0., 0., 0., kz[0][3]], // 2
             vec![0., 0., ky[0][0], 0., ky[0][1], 0., 0., 0., ky[0][2], 0., ky[0][3], 0.], // 3
@@ -154,7 +158,20 @@ impl Beam12{
         ];
 
         // assemble the 12x12 rotation matrix
+        //  [ T3  0   0   0 ]
+        //  [ 0   T3  0   0 ]
+        //  [ 0   0   T3  0 ]
+        //  [ 0   0   0   T3]
+        for d in (0..12).step_by(3){
+            for i in 0..3{
+                for j in 0..3{
+                    elem.rot[d+i][d+j] = rot_t3[i][j];
+                }
+            }
+        }
 
+        // transform local stiffness matrix into global stiffness matrix
+        elem.stff_g = mul_mat(&mul_mat(&transpose(&elem.rot), &elem.stff_l), &elem.rot);
 
         // return the element
         return elem;
