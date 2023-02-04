@@ -92,7 +92,7 @@ pub struct Beam12{
     e: Coord3D<f64>,
     /// Shear modulus
     g: Coord3D<f64>,
-    /// Moment of inertia {Torsional constant of cross-section [m^4](j),Iy,Iz}
+    /// Moment of inertia {Ix,Iy,Iz} Note: Ix = Torsional constant of cross-section \[m^4\](j)
     i: Coord3D<f64>,
     /// Area {Ax,Ay,Az}
     a: Coord3D<f64>,
@@ -108,7 +108,7 @@ impl Beam12{
     /// Creates a new empty element (without stiffness matrices)
     /// 
     /// # Parameters:
-    /// - nodes: Nodes defining the element's span. eg. [[0,0,0],[1,0,0]]
+    /// - nodes: Nodes defining the element's span. eg. {{0,0,0},{1,0,0}}
     /// - x_rot: Element rotation with respect of local X axis (deg)
     /// - e: Elastic modulus {Ex, Ey, Ez}
     /// - g: Shear modulus {Gx, Gy, Gz}
@@ -138,7 +138,7 @@ impl Beam12{
     /// rotation applied to `e`,`g`, and `i`.
     /// 
     /// # Parameters:
-    /// - nodes: Nodes defining the element's span. eg. [[0,0,0],[1,0,0]]
+    /// - nodes: Nodes defining the element's span. eg. {{0,0,0},{1,0,0}}
     /// - x_rot: Element rotation with respect of local X axis (deg)
     /// - e: Elastic modulus {Ex, Ey, Ez}
     /// - g: Shear modulus {Gx, Gy, Gz}

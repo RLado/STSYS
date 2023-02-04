@@ -281,7 +281,7 @@ pub fn cross_prod_3d<T:Num + std::ops::Mul<Output = T> + std::ops::Sub<Output = 
     return vec![a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 }
 
-//// Dense matrix add
+/// Dense matrix add
 ///
 /// # Example
 /// ```
@@ -333,7 +333,7 @@ pub fn add_mat<T: Num + std::ops::Add<Output = T>>(
     return o;
 }
 
-//// Dense matrix multiplication
+/// Dense matrix multiplication
 ///
 /// # Example
 /// ```
