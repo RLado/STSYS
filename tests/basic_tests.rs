@@ -1,4 +1,8 @@
-use stsys_lib::{mat_math, elements, utils};
+use rsparse;
+use rsparse::data::Sprs;
+
+use stsys_lib::mat_math;
+use stsys_lib::utils;
 mod test_utils;
 
 #[test]
@@ -93,19 +97,19 @@ fn add_1() {
 
     // Check as dense
     assert_eq!(
-        rsparse::add(&a_sparse, &b_sparse, 1., 1.).todense(),
+        rsparse::add(&a_sparse, &b_sparse, 1., 1.).to_dense(),
         mat_math::add_mat(&a, &b)
     );
 
     // Check B+A
     assert_eq!(
-        rsparse::add(&b_sparse, &a_sparse, 1., 1.).todense(),
+        rsparse::add(&b_sparse, &a_sparse, 1., 1.).to_dense(),
         mat_math::add_mat(&b, &a)
     );
 
     // Check 2A - A = A
     assert_eq!(
-        rsparse::add(&a_sparse, &a_sparse, 2., -1.).todense(),
+        rsparse::add(&a_sparse, &a_sparse, 2., -1.).to_dense(),
         mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a))
     );
     assert_eq!(
@@ -148,19 +152,19 @@ fn add_2() {
 
     // Check as dense
     assert_eq!(
-        rsparse::add(&a_sparse, &b_sparse, 1., 1.).todense(),
+        rsparse::add(&a_sparse, &b_sparse, 1., 1.).to_dense(),
         mat_math::add_mat(&a, &b)
     );
     
     // Check B+A
     assert_eq!(
-        rsparse::add(&b_sparse, &a_sparse, 1., 1.).todense(),
+        rsparse::add(&b_sparse, &a_sparse, 1., 1.).to_dense(),
         mat_math::add_mat(&b, &a)
     );
 
     // Check 2A - A = A
     assert_eq!(
-        rsparse::add(&a_sparse, &a_sparse, 2., -1.).todense(),
+        rsparse::add(&a_sparse, &a_sparse, 2., -1.).to_dense(),
         mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a))
     );
     assert_eq!(
@@ -320,32 +324,203 @@ fn multiply_7() {
 }
 
 #[test]
-fn beam12_1() {
-    // square bar 1m long 50mmx50mm
-    let elem = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
-        0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
-        utils::Coord3D::new(Some(vec![2500., 50.*1000., 50.*1000.])), //mm²
+fn sprs_remove_column_test_1() {
+    let a = Sprs{
+        nzmax: 4,
+        m: 3,
+        n: 3,
+        p: vec![0, 1, 2, 4],
+        i: vec![0, 1, 2, 0],
+        x: vec![1., 2., 3., 4.],
+    };
+
+    let b = utils::sprs_remove_column(&a, 1);
+
+    assert_eq!(b.nzmax, 3);
+    assert_eq!(b.m, 3);
+    assert_eq!(b.n, 2);
+    assert_eq!(b.to_dense(), vec![vec![1.0, 4.0], vec![0.0, 0.0], vec![0.0, 3.0]]);
+}
+
+#[test]
+fn sprs_remove_column_test_2() {
+    let a = vec![
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+    let a_n1 = vec![ // a with no column 1
+        vec![0.951851, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.758594, 0.961243, 0.282974],
+    ];
+
+    let mut a_s = Sprs::new();
+    a_s.from_vec(&a);
+
+    let a_n1_s = utils::sprs_remove_column(&a_s, 1);
+
+    assert_eq!(a_n1_s.nzmax, 20);
+    assert_eq!(a_n1_s.m, 5);
+    assert_eq!(a_n1_s.n, 4);
+    assert_eq!(
+        &a_n1_s.to_dense(),
+        &a_n1
     );
+}
 
-    // 12x12 identity matrix
-    let mut eye12 = vec![vec![0.;12];12];
-    for i in 0..12 {
-        eye12[i][i] = 1.;
-    }
+#[test]
+fn sprs_remove_column_test_3() {
+    let a = vec![
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+    let a_n0 = vec![ // a with no column 0
+        vec![0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.371392, 0.758594, 0.961243, 0.282974],
+    ];
 
-    utils::print_matrix(&elem.rot);
-    println!("---");
-    utils::print_matrix(&eye12);
-    assert_eq!(&elem.rot, &eye12);
+    let mut a_s = Sprs::new();
+    a_s.from_vec(&a);
 
-    println!("---");
+    let a_n0_s = utils::sprs_remove_column(&a_s, 0);
 
-    utils::print_matrix(&elem.stff_l);
-    println!("---");
-    utils::print_matrix(&elem.stff_g);
-    assert_eq!(&elem.stff_l, &elem.stff_g);
+    assert_eq!(a_n0_s.nzmax, 20);
+    assert_eq!(a_n0_s.m, 5);
+    assert_eq!(a_n0_s.n, 4);
+    assert_eq!(
+        &a_n0_s.to_dense(),
+        &a_n0
+    );
+}
+
+#[test]
+fn sprs_remove_column_test_4() {
+    let a = vec![
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+    let a_n4 = vec![ // a with no column 4
+        vec![0.951851, 0.980789, 0.538168, 0.597793],
+        vec![0.427680, 0.511328, 0.794301, 0.969392],
+        vec![0.294124, 0.453990, 0.932289, 0.842932],
+        vec![0.045583, 0.318977, 0.735981, 0.090698],
+        vec![0.285703, 0.371392, 0.758594, 0.961243],
+    ];
+
+    let mut a_s = Sprs::new();
+    a_s.from_vec(&a);
+
+    let a_n4_s = utils::sprs_remove_column(&a_s, 4);
+
+    assert_eq!(a_n4_s.nzmax, 20);
+    assert_eq!(a_n4_s.m, 5);
+    assert_eq!(a_n4_s.n, 4);
+    assert_eq!(
+        &a_n4_s.to_dense(),
+        &a_n4
+    );
+}
+
+#[test]
+fn sprs_remove_row_test_1() {
+    let a = vec![
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+    let a_n1 = vec![ // a with no row 1
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+
+    let mut a_s = Sprs::new();
+    a_s.from_vec(&a);
+
+    let a_n1_s = utils::sprs_remove_row(&a_s, 1);
+
+    assert_eq!(a_n1_s.nzmax, 20);
+    assert_eq!(a_n1_s.m, 4);
+    assert_eq!(a_n1_s.n, 5);
+    assert_eq!(
+        &a_n1_s.to_dense(),
+        &a_n1
+    );
+}
+
+#[test]
+fn sprs_remove_row_test_2() {
+    let a = vec![
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+    let a_n0 = vec![ // a with no row 0
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+
+    let mut a_s = Sprs::new();
+    a_s.from_vec(&a);
+
+    let a_n0_s = utils::sprs_remove_row(&a_s, 0);
+
+    assert_eq!(a_n0_s.nzmax, 20);
+    assert_eq!(a_n0_s.m, 4);
+    assert_eq!(a_n0_s.n, 5);
+    assert_eq!(
+        &a_n0_s.to_dense(),
+        &a_n0
+    );
+}
+
+#[test]
+fn sprs_remove_row_test_3() {
+    let a = vec![
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+        vec![0.285703, 0.371392, 0.758594, 0.961243, 0.282974],
+    ];
+    let a_n4 = vec![ // a with no row 4
+        vec![0.951851, 0.980789, 0.538168, 0.597793, 0.729354],
+        vec![0.427680, 0.511328, 0.794301, 0.969392, 0.702270],
+        vec![0.294124, 0.453990, 0.932289, 0.842932, 0.803577],
+        vec![0.045583, 0.318977, 0.735981, 0.090698, 0.312947],
+    ];
+
+    let mut a_s = Sprs::new();
+    a_s.from_vec(&a);
+
+    let a_n4_s = utils::sprs_remove_row(&a_s, 4);
+
+    assert_eq!(a_n4_s.nzmax, 20);
+    assert_eq!(a_n4_s.m, 4);
+    assert_eq!(a_n4_s.n, 5);
+    assert_eq!(
+        &a_n4_s.to_dense(),
+        &a_n4
+    );
 }

@@ -6,5 +6,5 @@ Structural FEM analysis software.
 ## Examples
 
 ## Sources
-Lado-Roigé, R. (2023). rsparse (Version 0.1.9) [[Computer software](https://github.com/RLado/rsparse)]
+Lado-Roigé, R. (2023). rsparse (Version 0.2.0) [[Computer software](https://github.com/RLado/rsparse)]
 

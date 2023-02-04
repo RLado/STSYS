@@ -105,7 +105,7 @@ pub struct Beam12{
 }
 
 impl Beam12{
-    /// Create a new element
+    /// Creates a new empty element (without stiffness matrices)
     /// 
     /// # Parameters:
     /// - nodes: Nodes defining the element's span. eg. [[0,0,0],[1,0,0]]
@@ -115,9 +115,9 @@ impl Beam12{
     /// - i: Moment of inertia {Ix,Iy,Iz}. Note: Ix = Torsional constant of cross-section (j)
     /// - a: Area {Ax,Ay,Az}
     /// 
-    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, a: Coord3D<f64>) -> Beam12 {
+    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, a: Coord3D<f64>)-> Beam12{
         // create an instance of Beam12
-        let mut elem = Beam12{
+        let elem = Beam12{
             nodes: nodes,
             x_rot: x_rot,
             e: e,
@@ -126,55 +126,71 @@ impl Beam12{
             a: a,
             stff_l: Vec::new(),
             stff_g: Vec::new(),
-            rot: vec![vec![0.;12];12],
+            rot: Vec::new(),
         };
 
+        return elem;
+    }
+
+    /// Calculates the element's intrinsic properties
+    /// 
+    /// ⚠ If you use this function more than once on a `Beam12` be mindful of the
+    /// rotation applied to `e`,`g`, and `i`.
+    /// 
+    /// # Parameters:
+    /// - nodes: Nodes defining the element's span. eg. [[0,0,0],[1,0,0]]
+    /// - x_rot: Element rotation with respect of local X axis (deg)
+    /// - e: Elastic modulus {Ex, Ey, Ez}
+    /// - g: Shear modulus {Gx, Gy, Gz}
+    /// - i: Moment of inertia {Ix,Iy,Iz}. Note: Ix = Torsional constant of cross-section (j)
+    /// - a: Area {Ax,Ay,Az}
+    /// 
+    pub fn gen_stff(&mut self) {
         // calculate elements properties
-        let l = dist_3df(&nodes[0], &nodes[1]); //elem_len
+        let l = dist_3df(&self.nodes[0], &self.nodes[1]); //elem_len
         // let a = l/2.;
 
         // populate the rotation matrix
         let p2 = vec![l, 0., 0.]; // p1 = [0., 0., 0.]
-        let p3 = vec![0., 1., 0.];
 
         // align p3 to specified beam orientation
-        let rot_x = vec![
+        let x_rot_mat = vec![
             vec![1., 0., 0.],
-            vec![0., f64::cos(elem.x_rot/180.*PI), -f64::sin(elem.x_rot/180.*PI)],
-            vec![0., f64::sin(elem.x_rot/180.*PI), f64::cos(elem.x_rot/180.*PI)],
+            vec![0., f64::cos(self.x_rot/180.*PI), -f64::sin(self.x_rot/180.*PI)],
+            vec![0., f64::sin(self.x_rot/180.*PI), f64::cos(self.x_rot/180.*PI)],
         ];
-        let p3 = &transpose(&mul_mat(&rot_x, &transpose(&vec![p3])))[0];
 
         // rotate properties to align with beam orientation
-        let e_temp = &transpose(&mul_mat(&rot_x, &transpose(&vec![elem.e.to_vec()])))[0];
-        let g_temp = &transpose(&mul_mat(&rot_x, &transpose(&vec![elem.g.to_vec()])))[0];
-        let i_temp = &transpose(&mul_mat(&rot_x, &transpose(&vec![elem.i.to_vec()])))[0];
-        elem.e = Coord3D::new(Some(e_temp.to_vec()));
-        elem.g = Coord3D::new(Some(g_temp.to_vec()));
-        elem.i = Coord3D::new(Some(i_temp.to_vec()));
+        let e_temp = &transpose(&mul_mat(&x_rot_mat, &transpose(&vec![self.e.to_vec()])))[0];
+        let g_temp = &transpose(&mul_mat(&x_rot_mat, &transpose(&vec![self.g.to_vec()])))[0];
+        let i_temp = &transpose(&mul_mat(&x_rot_mat, &transpose(&vec![self.i.to_vec()])))[0];
+        self.e = Coord3D::new(Some(e_temp.to_vec()));
+        self.g = Coord3D::new(Some(g_temp.to_vec()));
+        self.i = Coord3D::new(Some(i_temp.to_vec()));
 
         // create a transformation matrix T3 that aligns P with nodes
-        let t3 = align_vector_3df(&Coord3D::new(Some(p2)), &Coord3D::new(Some(add_vec(&elem.nodes[1].to_vec(), &elem.nodes[0].to_vec(), 1., -1.))));
+        let t3 = align_vector_3df(&Coord3D::new(Some(p2)), &Coord3D::new(Some(add_vec(&self.nodes[1].to_vec(), &self.nodes[0].to_vec(), 1., -1.))));
 
         // assemble the 12x12 rotation matrix
         //  [ T3  0   0   0 ]
         //  [ 0   T3  0   0 ]
         //  [ 0   0   T3  0 ]
         //  [ 0   0   0   T3]
+        self.rot = vec![vec![0.;12];12];
         for d in (0..12).step_by(3){
             for i in 0..3{
                 for j in 0..3{
-                    elem.rot[d+i][d+j] = t3[i][j];
+                    self.rot[d+i][d+j] = t3[i][j];
                 }
             }
         }
 
         // populate the stiffness matrix
-        let phi_y = 12.*(elem.e.y*elem.i.y/(elem.g.y*elem.a.y*l.powi(2)));
-        let phi_z = 12.*(elem.e.z*elem.i.z/(elem.g.z*elem.a.z*l.powi(2)));
+        let phi_y = 12.*(self.e.y*self.i.y/(self.g.y*self.a.y*l.powi(2)));
+        let phi_z = 12.*(self.e.z*self.i.z/(self.g.z*self.a.z*l.powi(2)));
 
         let kz = scxmat(
-            elem.e.z*elem.i.z/((1. + phi_y)*l.powi(2)), 
+            self.e.z*self.i.z/((1. + phi_y)*l.powi(2)), 
             &vec![
                 vec![12., 6.*l, -12., 6.*l],
                 vec![0., (4.+phi_y)*l.powi(2), -6.*l, (2.-phi_y)*l.powi(2)],
@@ -183,7 +199,7 @@ impl Beam12{
             ]
         );
         let ky = scxmat(
-            elem.e.y*elem.i.y/((1. + phi_z)*l.powi(2)), 
+            self.e.y*self.i.y/((1. + phi_z)*l.powi(2)), 
             &vec![
                 vec![12., -6.*l, -12., -6.*l],
                 vec![0., (4.+phi_z)*l.powi(2), 6.*l, (2.-phi_z)*l.powi(2)],
@@ -192,9 +208,9 @@ impl Beam12{
             ]
         );
 
-        let eal = elem.e.x*elem.a.x/l;
-        let gjl = elem.g.x*elem.i.x/l;
-        elem.stff_l = vec![
+        let eal = self.e.x*self.a.x/l;
+        let gjl = self.g.x*self.i.x/l;
+        self.stff_l = vec![
             vec![eal, 0., 0., 0., 0., 0., -eal, 0., 0., 0., 0., 0.], // 1
             vec![0., kz[0][0], 0., 0., 0., kz[0][1], 0., kz[0][2], 0., 0., 0., kz[0][3]], // 2
             vec![0., 0., ky[0][0], 0., ky[0][1], 0., 0., 0., ky[0][2], 0., ky[0][3], 0.], // 3
@@ -210,9 +226,6 @@ impl Beam12{
         ];
 
         // transform local stiffness matrix into global stiffness matrix
-        elem.stff_g = mul_mat(&mul_mat(&transpose(&elem.rot), &elem.stff_l), &elem.rot);
-
-        // return the element
-        return elem;
+        self.stff_g = mul_mat(&mul_mat(&transpose(&self.rot), &self.stff_l), &self.rot);
     }
 }
