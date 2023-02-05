@@ -77,7 +77,6 @@ pub fn beam12_gen_stiffness(elements: &Vec<elements::Beam12>, conectivity: &Vec<
     return global_stff;
 }
 
-
 /// Solve a structure given constraints and the stiffness matrix (elastic)
 /// 
 /// {F} = |K|{d}
@@ -119,8 +118,8 @@ pub fn solve (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Option<f64
     }
 
     // Solve for the d_vec unknowns
-    // rsparse::cholsol(&red_global_stff, &mut kn_f, 0);
-    rsparse::lusol(&red_global_stff, &mut kn_f, 1, 1e-12);
+    rsparse::cholsol(&red_global_stff, &mut kn_f, 0);
+    // rsparse::lusol(&red_global_stff, &mut kn_f, 1, 1e-12); // No need to use this, it is slower.
     
     // Populate full d_vec
     let mut d_vec_sol = Vec::new();
