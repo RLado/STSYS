@@ -17,7 +17,7 @@ pub mod utils;
 pub fn beam12_assemble_elem(global_stff: &Sprs, stff_g: &Vec<Vec<f64>>, node_n: [usize;2]) -> Sprs {
     // Check the positions are valid in the global stiffness matrix
     let max_p = std::cmp::max(node_n[0], node_n[1]);
-    if max_p*6+6 > global_stff.m {
+    if (max_p+1)*6 > global_stff.m {
         panic!("Atleast one of the given nodes is outside the bounds of the stiffness matrix.");
     }
 
@@ -66,7 +66,7 @@ pub fn beam12_gen_stiffness(elements: &Vec<elements::Beam12>, conectivity: &Vec<
         mnl.push(std::cmp::max(c[0], c[1]));
     }
     let max_node_num = mnl.iter().max();
-    let mut global_stff = Sprs::zeros(*max_node_num.unwrap(), *max_node_num.unwrap(), 0);
+    let mut global_stff = Sprs::zeros((*max_node_num.unwrap()+1)*6, (*max_node_num.unwrap()+1)*6, 0);
     
     for i in 0..conectivity.len(){
         let mut elem = elements[i].clone();
@@ -119,13 +119,16 @@ pub fn solve (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Option<f64
     }
 
     // Solve for the d_vec unknowns
-    rsparse::cholsol(&red_global_stff, &mut kn_f, 0);
+    // rsparse::cholsol(&red_global_stff, &mut kn_f, 0);
+    rsparse::lusol(&red_global_stff, &mut kn_f, 1, 1e-12);
     
     // Populate full d_vec
     let mut d_vec_sol = Vec::new();
+    let mut j = 0;
     for i in 0..len_d_vec{
         if d_vec[i].is_none(){
-            d_vec_sol.push(kn_f[i]);
+            d_vec_sol.push(kn_f[j]);
+            j += 1;
         }
         else{
             d_vec_sol.push(d_vec[i].unwrap());
