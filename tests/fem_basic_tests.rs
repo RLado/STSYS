@@ -98,7 +98,7 @@ fn beam12_cantilever_4e() {
     // Solve the model
     let f_vec_sol;
     let d_vec_sol;
-    (f_vec_sol, d_vec_sol) = stsys_lib::solve(f_vec, &stff, d_vec);
+    (f_vec_sol, d_vec_sol) = stsys_lib::solve_static(f_vec, &stff, d_vec);
 
     // Check results
     dbg!(&f_vec_sol, &d_vec_sol);

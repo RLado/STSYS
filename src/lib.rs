@@ -77,7 +77,7 @@ pub fn beam12_gen_stiffness(elements: &Vec<elements::Beam12>, conectivity: &Vec<
     return global_stff;
 }
 
-/// Solve a structure given constraints and the stiffness matrix (elastic)
+/// Statically solve a structure given constraints and the stiffness matrix (elastic)
 /// 
 /// {F} = |K|{d}
 /// Unknowns must be marked using `None`
@@ -86,7 +86,7 @@ pub fn beam12_gen_stiffness(elements: &Vec<elements::Beam12>, conectivity: &Vec<
 /// - Vec<f64>: f_vec without unknowns
 /// - Vec<f64>: d_vec without unknowns
 /// 
-pub fn solve (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Option<f64>>) -> (Vec<f64>, Vec<f64>) {
+pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Option<f64>>) -> (Vec<f64>, Vec<f64>) {
     let len_f_vec = f_vec.len();
     let len_d_vec = d_vec.len();
 
