@@ -75,3 +75,39 @@ fn scxmat(s: f64, mat: &Sprs) -> Sprs {
     }
     return r;
 }
+
+/// Find the real eigenvalues of a `Sprs` matrix using the QR algorithm
+/// 
+/// iter ~ 100_000
+/// 
+/// Make this improvements please:
+/// https://www.andreinc.net/2021/01/25/computing-eigenvalues-and-eigenvectors-using-qr-decomposition
+/// 
+pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
+    let mut ak = mat.clone();
+    // Construct an identity matrix
+    let mut eye = Trpl::new();
+    for i in 0..mat.m {
+        eye.append(i, i, 1.);
+    }
+    let eye = eye.to_sprs();
+    let mut qq = eye.clone();
+
+    for _ in 0..iter {
+        let (q, r) = qr_decomp(&ak);
+        ak = rsparse::multiply(&r,&q);
+        qq = rsparse::multiply(&qq, &q);
+    }
+
+    let mut lambda = vec![0.; ak.m];
+    for i in 0..ak.n{
+        for p in ak.p[i]..ak.p[i+1]{
+            if ak.i[p as usize] == i {
+                lambda[i] = ak.x[p as usize];
+                break;
+            }
+        }
+    }
+    
+    return lambda;
+}

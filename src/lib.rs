@@ -153,3 +153,12 @@ pub fn modal_free(global_stff: &Sprs) -> Vec<Complex<f64>> {
     modes.sort_by(|a, b| a.re.partial_cmp(&b.re).unwrap());
     return modes;
 }
+
+/// Performs a free body modal analysis
+/// 
+/// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
+/// 
+pub fn modal_free_b(global_stff: &Sprs) -> Vec<f64> {
+    let modes = eigen::eigen_qr(&global_stff, 100_000);
+    return modes;
+}
