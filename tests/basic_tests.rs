@@ -527,6 +527,23 @@ fn sprs_remove_row_test_3() {
 }
 
 #[test]
+fn qr_decomp_1() {
+    let a = vec![
+        vec![5.,10., 3., 9., 6.],
+        vec![4., 6., 8., 7., 5.],
+        vec![5., 6.,10., 9., 3.],
+        vec![7., 5., 1., 2., 8.],
+        vec![1., 5.,10.,10.,10.],
+    ];
+    let mut s = Sprs::new();
+    s.from_vec(&a);
+
+    let (q, r) = eigen::qr_decomp(&s);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &a, 1e-12);
+}
+
+#[test]
 fn eigenval_1() {
     let a = vec![
         vec![8.3854e-01, 2.6103e-01, 7.6852e-01, 9.8303e-01, 9.8937e-01],
