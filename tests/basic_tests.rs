@@ -2,6 +2,7 @@ use rsparse;
 use rsparse::data::Sprs;
 
 use stsys_lib::mat_math;
+use stsys_lib::eigen;
 use stsys_lib::utils;
 mod test_utils;
 
@@ -523,4 +524,35 @@ fn sprs_remove_row_test_3() {
         &a_n4_s.to_dense(),
         &a_n4
     );
+}
+
+#[test]
+fn eigenval_1() {
+    let a = vec![
+        vec![8.3854e-01, 2.6103e-01, 7.6852e-01, 9.8303e-01, 9.8937e-01],
+        vec![8.7669e-01, 1.7700e-01, 4.5003e-01, 3.6894e-01, 3.9974e-01],
+        vec![5.5892e-01, 4.2349e-01, 6.7910e-03, 6.3425e-01, 6.1249e-01],
+        vec![7.7550e-01, 1.6260e-01, 3.4426e-01, 8.4212e-02, 1.1991e-01],
+        vec![6.1435e-01, 1.3226e-01, 9.9062e-01, 4.6831e-01, 9.8705e-01],
+    ];
+    let mut a_sparse = Sprs::new();
+    a_sparse.from_vec(&a);
+
+    let r = vec![
+        2.746716,
+        -0.659856,
+        -0.079485,
+        -0.232966,
+        0.319176,
+    ];
+    
+    let eig = eigen::eigenval(&a_sparse);
+
+    // Get the real components of the eigenvalues
+    let mut eig_r = Vec::with_capacity(a_sparse.m);
+    for i in eig {
+        eig_r.push(i.re);
+    }
+
+    test_utils::assert_eq_f_vec(&eig_r, &r, 1e-5);
 }

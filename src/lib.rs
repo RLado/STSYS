@@ -1,12 +1,14 @@
 //! Structural FEM analysis software
 //! 
 
+use nalgebra::Complex;
 use rsparse;
 use rsparse::data::{Sprs, Trpl};
 
 pub mod elements;
 pub mod mat_math;
 pub mod utils;
+pub mod eigen;
 
 
 /// Assembles an element's stiffness matrix into a given global stiffness matrix
@@ -139,4 +141,15 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
 
     // Return the solution
     return (f_vec_sol, d_vec_sol);
+}
+
+/// Performs a free body modal analysis
+/// 
+/// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
+/// 
+pub fn modal_free(global_stff: &Sprs) -> Vec<Complex<f64>> {
+    let mut modes = eigen::eigenval(&global_stff);
+    // Sort from smaller to larger real values
+    modes.sort_by(|a, b| a.re.partial_cmp(&b.re).unwrap());
+    return modes;
 }
