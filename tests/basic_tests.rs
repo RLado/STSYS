@@ -544,38 +544,36 @@ fn qr_decomp_1() {
 }
 
 #[test]
-fn eigenval_1() {
+fn eigenval_sym_1() {
     let a = vec![
-        vec![8.3854e-01, 2.6103e-01, 7.6852e-01, 9.8303e-01, 9.8937e-01],
-        vec![8.7669e-01, 1.7700e-01, 4.5003e-01, 3.6894e-01, 3.9974e-01],
-        vec![5.5892e-01, 4.2349e-01, 6.7910e-03, 6.3425e-01, 6.1249e-01],
-        vec![7.7550e-01, 1.6260e-01, 3.4426e-01, 8.4212e-02, 1.1991e-01],
-        vec![6.1435e-01, 1.3226e-01, 9.9062e-01, 4.6831e-01, 9.8705e-01],
+        vec![1., 2., 3., 8., 1., 6.],
+        vec![2., 1., 0., 3., 5., 7.],
+        vec![3., 0., 1., 4., 9., 2.],
+        vec![8., 3., 4., 1., 0., 3.],
+        vec![1., 5., 9., 0., 1., 2.],
+        vec![6., 7., 2., 3., 2., 1.],
     ];
     let mut a_sparse = Sprs::new();
     a_sparse.from_vec(&a);
 
-    let r = vec![
-        2.746716,
-        -0.659856,
-        -0.079485,
-        -0.232966,
-        0.319176,
+    let mut r = vec![
+        -11.0034,
+        -7.5561,
+        -4.5333,
+        3.2038,
+        6.4678,
+        19.4212,
     ];
     
-    let eig = eigen::eigenval(&a_sparse);
+    let (mut val, _vec) = eigen::eig_sym(&a_sparse);
+    r.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    val.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-    // Get the real components of the eigenvalues
-    let mut eig_r = Vec::with_capacity(a_sparse.m);
-    for i in eig {
-        eig_r.push(i.re);
-    }
-
-    test_utils::assert_eq_f_vec(&eig_r, &r, 1e-5);
+    test_utils::assert_eq_f_vec(&val, &r, 1e-4);
 }
 
 #[test]
-fn eigenval_1_b() {
+fn eigenval_1() {
     let a = vec![
         vec![8.3854e-01, 2.6103e-01, 7.6852e-01, 9.8303e-01, 9.8937e-01],
         vec![8.7669e-01, 1.7700e-01, 4.5003e-01, 3.6894e-01, 3.9974e-01],
@@ -594,7 +592,7 @@ fn eigenval_1_b() {
         0.319176,
     ];
     
-    let (mut eig, _) = eigen::eigen_qr(&a_sparse, 100_000);
+    let mut eig = eigen::eigen_qr(&a_sparse, 500);
 
     r.sort_by(|a, b| a.partial_cmp(b).unwrap());
     eig.sort_by(|a, b| a.partial_cmp(b).unwrap());

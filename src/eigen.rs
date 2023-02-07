@@ -2,25 +2,32 @@
 //! not memory or compute efficent. **Needs a rewrite.**
 //! 
 
-use nalgebra as na;
-use nalgebra::Complex;
+use nalgebra;
 use rsparse::data::{Sprs, Trpl};
 
-/// Calculate eigenvalues of a Sprs matrix
+/// Calculate eigenvalues of a symetric matrix
 /// 
-pub fn eigenval(mat: &Sprs) -> Vec<Complex<f64>> {
+pub fn eig_sym(mat: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
     // Flatten the matrix to convert into nalgebra format
     let flat = flatten(mat);
 
-    let dm = na::DMatrix::from_vec(mat.m, mat.n, flat);
-    let eig = dm.complex_eigenvalues();
+    let dm = nalgebra::DMatrix::from_vec(mat.m, mat.n, flat);
+    let eig = nalgebra::linalg::SymmetricEigen::new(dm);
 
-    let mut r = Vec::with_capacity(mat.m);
-    for e in &eig {
-        r.push(*e);
+    let mut e_val = Vec::with_capacity(mat.m);
+    let mut e_vec = Vec::with_capacity(mat.m);
+    for e in eig.eigenvalues.iter() {
+        e_val.push(*e);
+    }
+    for e in eig.eigenvectors.row_iter() {
+        let mut v = Vec::with_capacity(mat.m);
+        for i in 0..mat.m {
+            v.push(e[i]);
+        }
+        e_vec.push(v);
     }
 
-    return r;
+    return (e_val, e_vec);
 }
 
 /// Flatten a matrix
@@ -80,12 +87,9 @@ fn scxmat(s: f64, mat: &Sprs) -> Sprs {
 
 /// Find the real eigenvalues of a `Sprs` matrix using the QR algorithm
 /// 
-/// iter ~ 100_000
+/// iter ~ 10_000
 /// 
-/// Make this improvements please:
-/// https://www.andreinc.net/2021/01/25/computing-eigenvalues-and-eigenvectors-using-qr-decomposition
-/// 
-pub fn eigen_qr(mat: &Sprs, iter: usize) -> (Vec<f64>, Sprs) {
+pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
     let mut ak = mat.clone();
     // Construct an identity matrix
     let mut eye = Trpl::new();
@@ -93,12 +97,22 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> (Vec<f64>, Sprs) {
         eye.append(i, i, 1.);
     }
     let eye = eye.to_sprs();
-    let mut qq = eye.clone();
 
     for _ in 0..iter {
-        let (q, r) = qr_decomp(&ak);
-        ak = rsparse::multiply(&r,&q);
-        qq = rsparse::multiply(&qq, &q);
+        // s_k is the last element of the diagonal of A_k
+        let mut sk = 0.;
+        for i in ak.p[ak.n-1]..ak.p[ak.n]{
+            if ak.i[i as usize] == ak.n-1 {
+                sk = ak.x[i as usize];
+                break;
+            }
+        }
+        let smult = scxmat(sk, &eye);
+
+        // QR decomposition of A_k - s_k * I
+        let (q, r) = qr_decomp(&rsparse::add(&ak, &smult, 1., -1.));
+        // Add smult back in
+        ak = rsparse::add(&rsparse::multiply(&r,&q), &smult, 1., 1.);
 
         // round off small values to zero (avoid NaN)
         for i in 0..ak.x.len() {
@@ -118,5 +132,5 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> (Vec<f64>, Sprs) {
         }
     }
     
-    return (lambda, qq);
+    return lambda;
 }
