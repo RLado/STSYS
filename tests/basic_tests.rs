@@ -586,7 +586,7 @@ fn eigenval_1_b() {
     let mut a_sparse = Sprs::new();
     a_sparse.from_vec(&a);
 
-    let r = vec![
+    let mut r = vec![
         2.746716,
         -0.659856,
         -0.079485,
@@ -594,7 +594,9 @@ fn eigenval_1_b() {
         0.319176,
     ];
     
-    let eig = eigen::eigen_qr(&a_sparse, 100_000);
+    let (mut eig, _) = eigen::eigen_qr(&a_sparse, 100_000);
 
+    r.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    eig.sort_by(|a, b| a.partial_cmp(b).unwrap());
     test_utils::assert_eq_f_vec(&eig, &r, 1e-5);
 }

@@ -202,6 +202,7 @@ fn beam12_cantilever_4e_modal() {
         1191980957851.76,
         1191980957851.76
     ];
+    modes_r.sort_by(|a, b| a.partial_cmp(b).unwrap());
     gt.sort_by(|a, b| a.partial_cmp(b).unwrap());
     test_utils::assert_eq_f_vec(
         &modes_r, 
@@ -256,10 +257,10 @@ fn beam12_cantilever_4e_modal_b() {
     let stff = stsys_lib::beam12_gen_stiffness(&vec![elem0, elem1, elem2, elem3], &connections);
 
     // Solve the model
-    let mut modes = stsys_lib::modal_free_b(&stff);
+    let (mut freq, _) = stsys_lib::modal_free_b(&stff);
 
     // Check results (NEED VERIFICATION!)
-    dbg!(&modes);
+    dbg!(&freq);
     let mut gt = vec![
         -2.65851622368382e-05,
         -2.04337832783118e-05,
@@ -293,10 +294,10 @@ fn beam12_cantilever_4e_modal_b() {
         1191980957851.76
     ];
 
-    modes.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    freq.sort_by(|a, b| a.partial_cmp(b).unwrap());
     gt.sort_by(|a, b| a.partial_cmp(b).unwrap());
     test_utils::assert_eq_f_vec(
-        &modes, 
+        &freq, 
         &gt,
         1e-2
     );

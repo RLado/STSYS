@@ -148,9 +148,7 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
 /// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
 /// 
 pub fn modal_free(global_stff: &Sprs) -> Vec<Complex<f64>> {
-    let mut modes = eigen::eigenval(&global_stff);
-    // Sort from smaller to larger real values
-    modes.sort_by(|a, b| a.re.partial_cmp(&b.re).unwrap());
+    let modes = eigen::eigenval(&global_stff);
     return modes;
 }
 
@@ -158,7 +156,7 @@ pub fn modal_free(global_stff: &Sprs) -> Vec<Complex<f64>> {
 /// 
 /// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
 /// 
-pub fn modal_free_b(global_stff: &Sprs) -> Vec<f64> {
-    let modes = eigen::eigen_qr(&global_stff, 100_000);
-    return modes;
+pub fn modal_free_b(global_stff: &Sprs) -> (Vec<f64>, Sprs) {
+    let (freq, mode) = eigen::eigen_qr(&global_stff, 1_000_000);
+    return (freq, mode);
 }

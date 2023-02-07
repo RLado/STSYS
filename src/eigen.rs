@@ -52,10 +52,12 @@ pub fn qr_decomp(s: &Sprs) -> (Sprs, Sprs) {
     }
     let eye = eye.to_sprs();
     let mut q = eye.clone();
+
     // H_n = I - beta_n * v_n * v_n^T (v_n is the n-th column of V)
     // Q = H_1 * H_2 * ... * H_n
     for n in 0..qr.b.len() {
         let mut vn = Trpl::new();
+        vn.m = qr.l.m;
         for i in qr.l.p[n]..qr.l.p[n+1]{
             vn.append(qr.l.i[i as usize], 0, qr.l.x[i as usize]);
         }
@@ -83,7 +85,7 @@ fn scxmat(s: f64, mat: &Sprs) -> Sprs {
 /// Make this improvements please:
 /// https://www.andreinc.net/2021/01/25/computing-eigenvalues-and-eigenvectors-using-qr-decomposition
 /// 
-pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
+pub fn eigen_qr(mat: &Sprs, iter: usize) -> (Vec<f64>, Sprs) {
     let mut ak = mat.clone();
     // Construct an identity matrix
     let mut eye = Trpl::new();
@@ -97,6 +99,13 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
         let (q, r) = qr_decomp(&ak);
         ak = rsparse::multiply(&r,&q);
         qq = rsparse::multiply(&qq, &q);
+
+        // round off small values to zero (avoid NaN)
+        for i in 0..ak.x.len() {
+            if ak.x[i].abs() < f64::EPSILON {
+                ak.x[i] = 0.;
+            }
+        }
     }
 
     let mut lambda = vec![0.; ak.m];
@@ -109,5 +118,5 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
         }
     }
     
-    return lambda;
+    return (lambda, qq);
 }
