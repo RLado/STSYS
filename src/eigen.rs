@@ -52,12 +52,7 @@ fn flatten (mat: &Sprs) -> Vec<f64> {
 pub fn qr_decomp(s: &Sprs) -> (Sprs, Sprs) {
     let sym = rsparse::sqr(&s, 2, true);
     let qr = rsparse::qr(&s,&sym);
-
-    let mut eye = Trpl::new();
-    for i in 0..s.m {
-        eye.append(i, i, 1.);
-    }
-    let eye = eye.to_sprs();
+    let eye = eye(s.m);
     let mut q = eye.clone();
 
     // H_n = I - beta_n * v_n * v_n^T (v_n is the n-th column of V)
@@ -91,12 +86,7 @@ fn scxmat(s: f64, mat: &Sprs) -> Sprs {
 /// 
 pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
     let mut ak = mat.clone();
-    // Construct an identity matrix
-    let mut eye = Trpl::new();
-    for i in 0..mat.m {
-        eye.append(i, i, 1.);
-    }
-    let eye = eye.to_sprs();
+    let eye = eye(mat.m);
 
     for _ in 0..iter {
         // s_k is the last element of the diagonal of A_k
@@ -133,4 +123,100 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
     }
     
     return lambda;
+}
+
+/// Calculate the Hessemberg decomposition of a matrix A
+/// 
+/// # Parameters:
+/// A: an n x n matrix
+/// 
+/// # Returns:
+/// H: an n x n upper Hessemberg matrix
+/// Q: an n x n orthogonal matrix
+/// 
+pub fn hessemberg(a: &Sprs) -> (Sprs, Sprs) {
+    let mut q = eye(a.m);
+    let mut h = a.clone();
+
+    for k in 0..a.n-2 {
+        let mut r = Trpl::new();
+        for i in h.p[k]..h.p[k+1] {
+            if h.i[i as usize] > k+1 {
+                r.append(h.i[i as usize], 0, h.x[i as usize]);
+            }
+        }
+        let r = r.to_sprs();
+        
+        let mut u = Trpl::new();
+        u.m = a.m-k;
+        u.n = 1;
+        let r1;
+        if r.i[0] == 0 {
+            r1 = r.x[0];
+        } else {
+            r1 = 0.;
+        }
+        
+        u.append(0, 0, -(sign(r1)*not_zero(r1)+is_zero(r1))*rsparse::multiply(&rsparse::transpose(&r), &r).x[0].sqrt());
+        let u = u.to_sprs();
+
+        let mut v = rsparse::add(&r, &u, 1., -1.);
+        let tvd = rsparse::multiply(&rsparse::transpose(&v), &v).x[0].sqrt();
+        for i in 0..v.x.len() {
+            v.x[i] = v.x[i] / tvd;
+        }
+
+        // Write W matrix by blocks
+        
+
+    }
+
+    return (h, q);
+}
+
+/// Create a identity `Sprs` matrix
+/// 
+pub fn eye(n: usize) -> Sprs {
+    // Construct an identity matrix
+    let mut eye = Trpl::new();
+    for i in 0..n {
+        eye.append(i, i, 1.);
+    }
+    return eye.to_sprs();
+}
+
+/// Return the sign of a given f64
+/// 
+fn sign(x: f64) -> f64 {
+    if x > 0. {
+        return 1.;
+    } else if x < 0. {
+        return -1.;
+    } else {
+        return 0.;
+    }
+}
+
+/// Is not zero f64?
+/// 
+/// if x is less than epsilon, return 0. else 1.
+/// 
+fn not_zero(x: f64) -> f64 {
+    if x.abs() < f64::EPSILON {
+        return 0.;
+    } else {
+        return 1.;
+    }
+}
+
+/// Is zero f64?
+/// 
+/// if x is less than epsilon, return 0. else 1.
+/// 
+fn is_zero(x: f64) -> f64 {
+    if x.abs() < f64::EPSILON {
+        return 1.;
+    } else {
+        return 0.;
+    }
 }
