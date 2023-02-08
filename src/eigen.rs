@@ -51,7 +51,7 @@ fn flatten (mat: &Sprs) -> Vec<f64> {
 /// 
 /// max_iter ~ 1_000
 /// 
-pub fn eigen_qr(mat: &Sprs, tol: f64, max_iter: usize) -> Vec<f64> {
+pub fn eig(mat: &Sprs, tol: f64, max_iter: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
     let (mut ak, _) = hessenberg(&mat);
     let eye = eye(mat.m);
 
@@ -104,8 +104,19 @@ pub fn eigen_qr(mat: &Sprs, tol: f64, max_iter: usize) -> Vec<f64> {
             }
         }
     }
+
+    // calculate eigenvectors (A - λI) v = 0
+    let mut evec = Vec::with_capacity(mat.m);
+    let mut b;
+    for l in &lambda {
+        let a = rsparse::add(&mat, &scxmat(*l, &eye), 1., -1.);
+        b = vec![0.; mat.m];
+        rsparse::lusol(&a, &mut b, 1, 1e-12);
+        evec.push(b);
+    }
+
     
-    return lambda;
+    return (lambda, evec);
 }
 
 /// Calculate sparse matrix QR decomposition

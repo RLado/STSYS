@@ -608,9 +608,9 @@ fn eigenval_1() {
         0.319176,
     ];
     
-    let mut eig = eigen::eigen_qr(&a_sparse, f64::EPSILON, 500);
+    let (mut val, _vec)  = eigen::eig(&a_sparse, f64::EPSILON, 500);
 
     r.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    eig.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    test_utils::assert_eq_f_vec(&eig, &r, 1e-5);
+    val.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    test_utils::assert_eq_f_vec(&val, &r, 1e-5);
 }
