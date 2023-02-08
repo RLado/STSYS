@@ -156,7 +156,7 @@ pub fn modal_free(global_stff: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
 /// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
 /// 
 pub fn modal_free_b(global_stff: &Sprs) -> (Vec<f64>, Sprs) {
-    let freq = eigen::eigen_qr(&global_stff, 100_000);
+    let freq = eigen::eigen_qr(&global_stff, f64::EPSILON, 1_000);
     let mode = Sprs::new();
     return (freq, mode);
 }

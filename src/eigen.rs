@@ -5,6 +5,7 @@
 use nalgebra;
 use rsparse::data::{Sprs, Trpl};
 
+// nalgebra --------------------------------------------------------------------
 /// Calculate eigenvalues of a symetric matrix
 /// 
 pub fn eig_sym(mat: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
@@ -44,6 +45,69 @@ fn flatten (mat: &Sprs) -> Vec<f64> {
     return flat;
 }
 
+// nalgebra --------------------------------------------------------------------
+
+/// Find the real eigenvalues of a `Sprs` matrix using the QR algorithm
+/// 
+/// max_iter ~ 1_000
+/// 
+pub fn eigen_qr(mat: &Sprs, tol: f64, max_iter: usize) -> Vec<f64> {
+    let (mut ak, _) = hessenberg(&mat);
+    let eye = eye(mat.m);
+
+    for _ in 0..max_iter {
+        // s_k is the last element of the diagonal of A_k
+        let mut sk = 0.;
+        for i in ak.p[ak.n-1]..ak.p[ak.n]{
+            if ak.i[i as usize] == ak.n-1 {
+                sk = ak.x[i as usize];
+                break;
+            }
+        }
+        let smult = scxmat(sk, &eye);
+
+        // QR decomposition of A_k - s_k * I
+        let (q, r) = qr_decomp(&rsparse::add(&ak, &smult, 1., -1.));
+        // Add smult back in
+        ak = rsparse::add(&rsparse::multiply(&r,&q), &smult, 1., 1.);
+
+        // round off small values to zero (avoid NaN)
+        for i in 0..ak.x.len() {
+            if ak.x[i].abs() < f64::EPSILON {
+                ak.x[i] = 0.;
+            }
+        }
+
+        // check for convergence
+        let mut conv = true;
+        for i in 0..ak.n-1 {
+            for p in ak.p[i]..ak.p[i+1]{ // loop over columns
+                if ak.i[p as usize] > i {
+                    if ak.x[p as usize].abs() > tol {
+                        conv = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if conv {
+            break;
+        }
+    }
+
+    let mut lambda = vec![0.; ak.m];
+    for i in 0..ak.n{
+        for p in ak.p[i]..ak.p[i+1]{
+            if ak.i[p as usize] == i {
+                lambda[i] = ak.x[p as usize];
+                break;
+            }
+        }
+    }
+    
+    return lambda;
+}
+
 /// Calculate sparse matrix QR decomposition
 /// 
 /// # Returns:
@@ -80,51 +144,6 @@ fn scxmat(s: f64, mat: &Sprs) -> Sprs {
     return r;
 }
 
-/// Find the real eigenvalues of a `Sprs` matrix using the QR algorithm
-/// 
-/// iter ~ 10_000
-/// 
-pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
-    let mut ak = mat.clone();
-    let eye = eye(mat.m);
-
-    for _ in 0..iter {
-        // s_k is the last element of the diagonal of A_k
-        let mut sk = 0.;
-        for i in ak.p[ak.n-1]..ak.p[ak.n]{
-            if ak.i[i as usize] == ak.n-1 {
-                sk = ak.x[i as usize];
-                break;
-            }
-        }
-        let smult = scxmat(sk, &eye);
-
-        // QR decomposition of A_k - s_k * I
-        let (q, r) = qr_decomp(&rsparse::add(&ak, &smult, 1., -1.));
-        // Add smult back in
-        ak = rsparse::add(&rsparse::multiply(&r,&q), &smult, 1., 1.);
-
-        // round off small values to zero (avoid NaN)
-        for i in 0..ak.x.len() {
-            if ak.x[i].abs() < f64::EPSILON {
-                ak.x[i] = 0.;
-            }
-        }
-    }
-
-    let mut lambda = vec![0.; ak.m];
-    for i in 0..ak.n{
-        for p in ak.p[i]..ak.p[i+1]{
-            if ak.i[p as usize] == i {
-                lambda[i] = ak.x[p as usize];
-                break;
-            }
-        }
-    }
-    
-    return lambda;
-}
-
 /// Calculate the Hessemberg decomposition of a matrix A
 /// 
 /// # Parameters:
@@ -135,8 +154,8 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
 /// Q: an n x n orthogonal matrix
 /// 
 pub fn hessenberg(a: &Sprs) -> (Sprs, Sprs) {
-    let mut q = eye(a.m);
     let mut h = a.clone();
+    let mut q = eye(a.m);
 
     for k in 0..a.m-2 {
         let mut r = Trpl::new();

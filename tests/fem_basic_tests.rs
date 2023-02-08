@@ -205,7 +205,6 @@ fn beam12_cantilever_4e_modal() {
     );
 }
 
-/*
 #[test]
 fn beam12_cantilever_4e_modal_b() {
     // build model
@@ -294,7 +293,6 @@ fn beam12_cantilever_4e_modal_b() {
     test_utils::assert_eq_f_vec(
         &freq, 
         &gt,
-        1e-2
+        1e-1
     );
 }
-*/

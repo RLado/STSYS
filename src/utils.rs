@@ -46,8 +46,8 @@ impl<T: Num> Coord3D<T>{
 
 /// Prints a matrix
 /// 
-pub fn print_matrix<T: Num>(vec: &Vec<Vec<T>>) {
-    for row in vec {
+pub fn print_matrix<T: Num>(mat: &Vec<Vec<T>>) {
+    for row in mat {
         println!("{:?}", row);
     }
 }

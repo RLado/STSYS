@@ -608,7 +608,7 @@ fn eigenval_1() {
         0.319176,
     ];
     
-    let mut eig = eigen::eigen_qr(&a_sparse, 500);
+    let mut eig = eigen::eigen_qr(&a_sparse, f64::EPSILON, 500);
 
     r.sort_by(|a, b| a.partial_cmp(b).unwrap());
     eig.sort_by(|a, b| a.partial_cmp(b).unwrap());
