@@ -134,15 +134,19 @@ pub fn eigen_qr(mat: &Sprs, iter: usize) -> Vec<f64> {
 /// H: an n x n upper Hessemberg matrix
 /// Q: an n x n orthogonal matrix
 /// 
-pub fn hessemberg(a: &Sprs) -> (Sprs, Sprs) {
+pub fn hessenberg(a: &Sprs) -> (Sprs, Sprs) {
     let mut q = eye(a.m);
     let mut h = a.clone();
 
-    for k in 0..a.n-2 {
+    for k in 0..a.m-2 {
         let mut r = Trpl::new();
+        r.m = a.m-(k+1);
+        r.n = 1;
+        let mut rc = 0; // row count
         for i in h.p[k]..h.p[k+1] {
-            if h.i[i as usize] > k+1 {
-                r.append(h.i[i as usize], 0, h.x[i as usize]);
+            if h.i[i as usize] > k {
+                r.append(rc, 0, h.x[i as usize]);
+                rc += 1;
             }
         }
         let r = r.to_sprs();
@@ -167,8 +171,39 @@ pub fn hessemberg(a: &Sprs) -> (Sprs, Sprs) {
         }
 
         // Write W matrix by blocks
-        
+        let mut w = Trpl::new();
+        w.m = a.m;
+        w.n = a.n;
+        // First top block
+        for i in 0..(k+1) {
+            for j in 0..w.n {
+                if i == j {
+                    w.append(i, j, 1.);
+                }
+            }
+        }
+        // Calculate v*v^T
+        let vv = rsparse::multiply(&v, &rsparse::transpose(&v));
+        let vv_dense = vv.to_dense();
 
+        // Second bottom block
+        for i in 0..w.m-(k+1){
+            for j in 0..w.n-(k+1) {
+                if i == j {
+                    w.append(i+(k+1), j+(k+1), 1.-2.*vv_dense[i][j]);
+                }
+                else {
+                    w.append(i+(k+1), j+(k+1), -2.*vv_dense[i][j]);
+                }
+            }
+        }
+        let w = w.to_sprs();
+
+        let wt = &rsparse::transpose(&w);
+        // Calculate H_n
+        h = rsparse::multiply(&rsparse::multiply(&w, &h), &wt);
+        // Calculate Q_n
+        q = rsparse::multiply(&q, &wt);
     }
 
     return (h, q);
