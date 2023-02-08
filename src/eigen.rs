@@ -1,51 +1,7 @@
-//! Module for calculating eigenvalues of a Sprs matrix. Uses nalgebra but it is
-//! not memory or compute efficent. **Needs a rewrite.**
+//! Module for calculating eigenvalues of a Sprs matrix
 //! 
 
-use nalgebra;
 use rsparse::data::{Sprs, Trpl};
-
-// nalgebra --------------------------------------------------------------------
-/// Calculate eigenvalues of a symetric matrix
-/// 
-pub fn eig_sym(mat: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
-    // Flatten the matrix to convert into nalgebra format
-    let flat = flatten(mat);
-
-    let dm = nalgebra::DMatrix::from_vec(mat.m, mat.n, flat);
-    let eig = nalgebra::linalg::SymmetricEigen::new(dm);
-
-    let mut e_val = Vec::with_capacity(mat.m);
-    let mut e_vec = Vec::with_capacity(mat.m);
-    for e in eig.eigenvalues.iter() {
-        e_val.push(*e);
-    }
-    for e in eig.eigenvectors.row_iter() {
-        let mut v = Vec::with_capacity(mat.m);
-        for i in 0..mat.m {
-            v.push(e[i]);
-        }
-        e_vec.push(v);
-    }
-
-    return (e_val, e_vec);
-}
-
-/// Flatten a matrix
-/// 
-fn flatten (mat: &Sprs) -> Vec<f64> {
-    let mat_dense = mat.to_dense();
-    let mut flat = Vec::with_capacity(mat.m*mat.n);
-    for i in 0..mat.m { // rows
-        for j in 0..mat.n { // columns
-            flat.push(mat_dense[i][j]);
-        }
-    }
-
-    return flat;
-}
-
-// nalgebra --------------------------------------------------------------------
 
 /// Find the real eigenvalues of a `Sprs` matrix using the QR algorithm
 /// 

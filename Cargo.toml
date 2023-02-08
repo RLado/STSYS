@@ -18,4 +18,3 @@ path = "src/lib.rs"
 
 [dependencies]
 rsparse = "0.2.0"
-nalgebra = "0.32.1"

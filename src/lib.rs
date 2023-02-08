@@ -144,18 +144,9 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
 
 /// Performs a free body modal analysis
 /// 
-/// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
+/// Returns all the real eigenvalues of the given stiffness matrix.
 /// 
 pub fn modal_free(global_stff: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
-    let (freq, modes) = eigen::eig_sym(&global_stff);
-    return (freq, modes);
-}
-
-/// Performs a free body modal analysis
-/// 
-/// Returns all the eigenvalues of the given stiffness matrix. (real and complex) (Should also return the modeshapes aka use eigenvectors)
-/// 
-pub fn modal_free_b(global_stff: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
     let (freq, modes) = eigen::eig(&global_stff, f64::EPSILON, 1_000);
     return (freq, modes);
 }
