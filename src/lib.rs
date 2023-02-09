@@ -8,6 +8,7 @@ pub mod elements;
 pub mod mat_math;
 pub mod utils;
 pub mod eigen;
+pub mod parser;
 
 
 /// Assembles an element's stiffness matrix into a given global stiffness matrix

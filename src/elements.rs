@@ -92,8 +92,10 @@ pub struct Beam12{
     e: Coord3D<f64>,
     /// Shear modulus
     g: Coord3D<f64>,
-    /// Moment of inertia {Ix,Iy,Iz} Note: Ix = Torsional constant of cross-section \[m^4\](j)
+    /// Moment of inertia {Ix,Iy,Iz}
     i: Coord3D<f64>,
+    /// Torsional constant of cross-section \[m^4\]
+    j: f64,
     /// Area {Ax,Ay,Az}
     a: Coord3D<f64>,
     /// Stiffness matrix (local axis)
@@ -112,10 +114,11 @@ impl Beam12{
     /// - x_rot: Element rotation with respect of local X axis (deg)
     /// - e: Elastic modulus {Ex, Ey, Ez}
     /// - g: Shear modulus {Gx, Gy, Gz}
-    /// - i: Moment of inertia {Ix,Iy,Iz}. Note: Ix = Torsional constant of cross-section (j)
+    /// - i: Moment of inertia {Ix,Iy,Iz}
+    /// - j: Torsional constant of cross-section
     /// - a: Area {Ax,Ay,Az}
     /// 
-    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, a: Coord3D<f64>)-> Beam12{
+    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, j: f64, a: Coord3D<f64>)-> Beam12{
         // create an instance of Beam12
         let elem = Beam12{
             nodes: nodes,
@@ -123,6 +126,7 @@ impl Beam12{
             e: e,
             g: g,
             i: i,
+            j: j,
             a: a,
             stff_l: Vec::new(),
             stff_g: Vec::new(),
@@ -186,8 +190,8 @@ impl Beam12{
         }
 
         // populate the stiffness matrix
-        let phi_y = 12.*(self.e.y*self.i.y/(self.g.y*self.a.y*l.powi(2)));
-        let phi_z = 12.*(self.e.z*self.i.z/(self.g.z*self.a.z*l.powi(2)));
+        let phi_y = 12.*(self.e.z*self.i.z/(self.g.y*self.a.y*l.powi(2)));
+        let phi_z = 12.*(self.e.y*self.i.y/(self.g.z*self.a.z*l.powi(2)));
 
         let kz = scxmat(
             self.e.z*self.i.z/((1. + phi_y)*l.powi(2)), 
@@ -209,7 +213,7 @@ impl Beam12{
         );
 
         let eal = self.e.x*self.a.x/l;
-        let gjl = self.g.x*self.i.x/l;
+        let gjl = self.g.x*self.j/l;
         self.stff_l = vec![
             vec![eal, 0., 0., 0., 0., 0., -eal, 0., 0., 0., 0., 0.], // 1
             vec![0., kz[0][0], 0., 0., 0., kz[0][1], 0., kz[0][2], 0., 0., 0., kz[0][3]], // 2

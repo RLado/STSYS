@@ -10,7 +10,8 @@ fn beam12_1() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*1000., 50.*1000.])), //mm²
     );
     elem.gen_stff();
@@ -43,7 +44,8 @@ fn beam12_cantilever_4e() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -52,7 +54,8 @@ fn beam12_cantilever_4e() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -61,7 +64,8 @@ fn beam12_cantilever_4e() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -70,7 +74,8 @@ fn beam12_cantilever_4e() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -123,7 +128,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -132,7 +138,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -141,7 +148,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
@@ -150,7 +158,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
         utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
