@@ -4,12 +4,13 @@
 use rsparse;
 use rsparse::data::{Sprs, Trpl};
 
+pub mod data_structs;
 pub mod elements;
 pub mod mat_math;
 pub mod utils;
-pub mod eigen;
+pub mod sprs_ops;
 pub mod parser;
-
+pub mod writer;
 
 /// Assembles an element's stiffness matrix into a given global stiffness matrix
 /// 
@@ -115,8 +116,8 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
     // Remove all rows and columns corresponding to the unknowns from the stiffness matrix
     let mut red_global_stff = global_stff.clone(); // reduced matrix
     for i in unk_i_f.into_iter().rev() {
-        red_global_stff = utils::sprs_remove_column(&red_global_stff, i);
-        red_global_stff = utils::sprs_remove_row(&red_global_stff, i);
+        red_global_stff = sprs_ops::sprs_remove_column(&red_global_stff, i);
+        red_global_stff = sprs_ops::sprs_remove_row(&red_global_stff, i);
     }
 
     // Solve for the d_vec unknowns
@@ -148,6 +149,6 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
 /// Returns all the real eigenvalues of the given stiffness matrix.
 /// 
 pub fn modal_free(global_stff: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
-    let (freq, modes) = eigen::eig(&global_stff, f64::EPSILON, 1_000);
+    let (freq, modes) = sprs_ops::eig(&global_stff, f64::EPSILON, 1_000);
     return (freq, modes);
 }

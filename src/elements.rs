@@ -4,14 +4,15 @@
 //! Elements are generally named after the number of DoF they have. 
 
 use std::f64::consts::PI;
+use crate::data_structs::Coord3D;
 
-use crate::{utils::Coord3D, mat_math::{scxvec, scxmat, add_vec, mul_mat, transpose, cross_prod_3d, dot_prod, add_mat}};
+use crate::{mat_math::{scxvec, scxmat, add_vec, mul_mat, transpose, cross_prod_3d, dot_prod, add_mat}};
 
 /// Calculate the distance between two `f64` points in 3D space [a -> b]
 /// 
 /// # Example:
 /// ```
-/// use stsys_lib::utils::Coord3D;
+/// use stsys_lib::data_structs::Coord3D;
 /// use stsys_lib::elements::dist_3df;
 ///
 /// 
@@ -29,7 +30,7 @@ pub fn dist_3df(a: &Coord3D<f64>, b: &Coord3D<f64>) -> f64 {
 /// 
 /// # Example:
 /// ```
-/// use stsys_lib::utils::Coord3D;
+/// use stsys_lib::data_structs::Coord3D;
 /// use stsys_lib::elements::norm;
 /// 
 /// let a = vec![1.,2.,3.];

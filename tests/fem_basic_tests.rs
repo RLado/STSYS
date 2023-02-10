@@ -1,17 +1,17 @@
-use stsys_lib::{elements, utils, parser};
+use stsys_lib::{elements, utils, parser, data_structs::Coord3D};
 mod test_utils;
 
 #[test]
 fn beam12_1() {
     // square bar 1m long 50mmx50mm
     let mut elem = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![0.,0.,0.])), Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*1000., 50.*1000.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*1000., 50.*1000.])), //mm²
     );
     elem.gen_stff();
 
@@ -39,43 +39,43 @@ fn beam12_cantilever_4e() {
     // build model
     // square bar 1m long 50mmx50mm
     let elem0 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![250.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![0.,0.,0.])), Coord3D::new(Some(vec![250.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem1 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![250.,0.,0.])), utils::Coord3D::new(Some(vec![500.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![250.,0.,0.])), Coord3D::new(Some(vec![500.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem2 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![500.,0.,0.])), utils::Coord3D::new(Some(vec![750.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![500.,0.,0.])), Coord3D::new(Some(vec![750.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem3 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![750.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![750.,0.,0.])), Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -123,43 +123,43 @@ fn beam12_cantilever_4e_load() {
     // build model
     // square bar 1m long 50mmx50mm
     let elem0 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![250.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![0.,0.,0.])), Coord3D::new(Some(vec![250.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem1 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![250.,0.,0.])), utils::Coord3D::new(Some(vec![500.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![250.,0.,0.])), Coord3D::new(Some(vec![500.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem2 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![500.,0.,0.])), utils::Coord3D::new(Some(vec![750.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![500.,0.,0.])), Coord3D::new(Some(vec![750.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem3 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![750.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![750.,0.,0.])), Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -189,7 +189,7 @@ fn beam12_cantilever_4e_load() {
     (f_vec_sol, d_vec_sol) = stsys_lib::solve_static(f_vec, &stff, d_vec);
 
     // load model --------------------------------------------------------------
-    let (elements_l, connections_l, f_vec_l, d_vec_l) = parser::cfg_parser("tests/test_models/model_1.cfg");
+    let (_, elements_l, connections_l, f_vec_l, d_vec_l) = parser::cfg_parser("tests/test_models/model_1.cfg");
 
     // assemble global stiffness matrix
     let stff_l = stsys_lib::beam12_gen_stiffness(&elements_l, &connections_l);
@@ -218,43 +218,43 @@ fn beam12_cantilever_4e_modal() {
     // build model
     // square bar 1m long 50mmx50mm
     let elem0 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![250.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![0.,0.,0.])), Coord3D::new(Some(vec![250.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem1 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![250.,0.,0.])), utils::Coord3D::new(Some(vec![500.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![250.,0.,0.])), Coord3D::new(Some(vec![500.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem2 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![500.,0.,0.])), utils::Coord3D::new(Some(vec![750.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![500.,0.,0.])), Coord3D::new(Some(vec![750.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem3 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![750.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![750.,0.,0.])), Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -315,43 +315,43 @@ fn beam12_cantilever_4e_modal_load() {
     // build model
     // square bar 1m long 50mmx50mm
     let elem0 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![250.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![0.,0.,0.])), Coord3D::new(Some(vec![250.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem1 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![250.,0.,0.])), utils::Coord3D::new(Some(vec![500.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![250.,0.,0.])), Coord3D::new(Some(vec![500.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem2 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![500.,0.,0.])), utils::Coord3D::new(Some(vec![750.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![500.,0.,0.])), Coord3D::new(Some(vec![750.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let elem3 = elements::Beam12::new(
-        [utils::Coord3D::new(Some(vec![750.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        [Coord3D::new(Some(vec![750.,0.,0.])), Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
         0.,
-        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
         8.78601e5,
-        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -363,7 +363,7 @@ fn beam12_cantilever_4e_modal_load() {
     let (freq, modes) = stsys_lib::modal_free(&stff);
 
     // load model --------------------------------------------------------------
-    let (elements_l, connections_l, _, _) = parser::cfg_parser("tests/test_models/model_2.cfg");
+    let (_, elements_l, connections_l, _, _) = parser::cfg_parser("tests/test_models/model_2.cfg");
 
     // assemble global stiffness matrix
     let stff_l = stsys_lib::beam12_gen_stiffness(&elements_l, &connections_l);

@@ -4,7 +4,7 @@
 use cfg_mgr;
 
 use crate::elements;
-use crate::utils;
+use crate::data_structs::{Coord3D};
 
 /// General configuration parser
 /// 
@@ -17,17 +17,17 @@ use crate::utils;
 /// - f_vec (if needed)
 /// - d_vec (if needed)
 /// 
-pub fn cfg_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>, Option<Vec<Option<f64>>>, Option<Vec<Option<f64>>>) {
+pub fn cfg_parser(path: &str) -> (&str, Vec<elements::Beam12>, Vec<[usize;2]>, Option<Vec<Option<f64>>>, Option<Vec<Option<f64>>>) {
     let config = cfg_mgr::load(&path).unwrap();
     
     if config["analysis_type"].string.trim() == "static" {
         let (elems, connections) = geometry_parser(&path);
         let (f_vec, d_vec) = constraints_parser(&path);
-        return (elems, connections, Some(f_vec), Some(d_vec));
+        return ("static", elems, connections, Some(f_vec), Some(d_vec));
     }
     else if config["analysis_type"].string.trim() == "modal" {
         let (elems, connections) = geometry_parser(&path);
-        return (elems, connections, None, None);
+        return ("modal", elems, connections, None, None);
     }
     else{
         panic!("Invalid analysis type");
@@ -92,13 +92,13 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
             connections.push(pos_buff);
             elems.push(
                 elements::Beam12::new(
-                    [utils::Coord3D::new(Some(kpt1_c_buff.clone())), utils::Coord3D::new(Some(kpt2_c_buff.clone()))], // mm
+                    [Coord3D::new(Some(kpt1_c_buff.clone())), Coord3D::new(Some(kpt2_c_buff.clone()))], // mm
                     x_rot_buff,
-                    utils::Coord3D::new(Some(e_buff.clone())), // N/mm²
-                    utils::Coord3D::new(Some(g_buff.clone())), // N/mm²
-                    utils::Coord3D::new(Some(i_buff.clone())),
+                    Coord3D::new(Some(e_buff.clone())), // N/mm²
+                    Coord3D::new(Some(g_buff.clone())), // N/mm²
+                    Coord3D::new(Some(i_buff.clone())),
                     j_buff,
-                    utils::Coord3D::new(Some(a_buff.clone())), //mm²
+                    Coord3D::new(Some(a_buff.clone())), //mm²
                 )
             );
             // reset pc

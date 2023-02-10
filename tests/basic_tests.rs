@@ -2,8 +2,7 @@ use rsparse;
 use rsparse::data::Sprs;
 
 use stsys_lib::mat_math;
-use stsys_lib::eigen;
-use stsys_lib::utils;
+use stsys_lib::sprs_ops;
 mod test_utils;
 
 #[test]
@@ -335,7 +334,7 @@ fn sprs_remove_column_test_1() {
         x: vec![1., 2., 3., 4.],
     };
 
-    let b = utils::sprs_remove_column(&a, 1);
+    let b = sprs_ops::sprs_remove_column(&a, 1);
 
     assert_eq!(b.nzmax, 3);
     assert_eq!(b.m, 3);
@@ -363,7 +362,7 @@ fn sprs_remove_column_test_2() {
     let mut a_s = Sprs::new();
     a_s.from_vec(&a);
 
-    let a_n1_s = utils::sprs_remove_column(&a_s, 1);
+    let a_n1_s = sprs_ops::sprs_remove_column(&a_s, 1);
 
     assert_eq!(a_n1_s.nzmax, 20);
     assert_eq!(a_n1_s.m, 5);
@@ -394,7 +393,7 @@ fn sprs_remove_column_test_3() {
     let mut a_s = Sprs::new();
     a_s.from_vec(&a);
 
-    let a_n0_s = utils::sprs_remove_column(&a_s, 0);
+    let a_n0_s = sprs_ops::sprs_remove_column(&a_s, 0);
 
     assert_eq!(a_n0_s.nzmax, 20);
     assert_eq!(a_n0_s.m, 5);
@@ -425,7 +424,7 @@ fn sprs_remove_column_test_4() {
     let mut a_s = Sprs::new();
     a_s.from_vec(&a);
 
-    let a_n4_s = utils::sprs_remove_column(&a_s, 4);
+    let a_n4_s = sprs_ops::sprs_remove_column(&a_s, 4);
 
     assert_eq!(a_n4_s.nzmax, 20);
     assert_eq!(a_n4_s.m, 5);
@@ -455,7 +454,7 @@ fn sprs_remove_row_test_1() {
     let mut a_s = Sprs::new();
     a_s.from_vec(&a);
 
-    let a_n1_s = utils::sprs_remove_row(&a_s, 1);
+    let a_n1_s = sprs_ops::sprs_remove_row(&a_s, 1);
 
     assert_eq!(a_n1_s.nzmax, 20);
     assert_eq!(a_n1_s.m, 4);
@@ -485,7 +484,7 @@ fn sprs_remove_row_test_2() {
     let mut a_s = Sprs::new();
     a_s.from_vec(&a);
 
-    let a_n0_s = utils::sprs_remove_row(&a_s, 0);
+    let a_n0_s = sprs_ops::sprs_remove_row(&a_s, 0);
 
     assert_eq!(a_n0_s.nzmax, 20);
     assert_eq!(a_n0_s.m, 4);
@@ -515,7 +514,7 @@ fn sprs_remove_row_test_3() {
     let mut a_s = Sprs::new();
     a_s.from_vec(&a);
 
-    let a_n4_s = utils::sprs_remove_row(&a_s, 4);
+    let a_n4_s = sprs_ops::sprs_remove_row(&a_s, 4);
 
     assert_eq!(a_n4_s.nzmax, 20);
     assert_eq!(a_n4_s.m, 4);
@@ -538,7 +537,7 @@ fn qr_decomp_1() {
     let mut s = Sprs::new();
     s.from_vec(&a);
 
-    let (q, r) = eigen::qr_decomp(&s);
+    let (q, r) = sprs_ops::qr_decomp(&s);
 
     test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &a, 1e-12);
 }
@@ -552,7 +551,7 @@ fn hessenberg_1() {
     let mut s = Sprs::new();
     s.from_vec(&a);
 
-    let (h, q) = eigen::hessenberg(&s);
+    let (h, q) = sprs_ops::hessenberg(&s);
 
     // Check results
     test_utils::assert_eq_f2d_vec(&h.to_dense(), &gt_h, 1e-5);
@@ -579,7 +578,7 @@ fn eigenval_1() {
         0.319176,
     ];
     
-    let (mut val, _vec)  = eigen::eig(&a_sparse, f64::EPSILON, 500);
+    let (mut val, _vec)  = sprs_ops::eig(&a_sparse, f64::EPSILON, 500);
 
     r.sort_by(|a, b| a.partial_cmp(b).unwrap());
     val.sort_by(|a, b| a.partial_cmp(b).unwrap());
