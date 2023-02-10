@@ -1,5 +1,4 @@
-use stsys_lib;
-use stsys_lib::{elements, utils};
+use stsys_lib::{elements, utils, parser};
 mod test_utils;
 
 #[test]
@@ -120,6 +119,101 @@ fn beam12_cantilever_4e() {
 }
 
 #[test]
+fn beam12_cantilever_4e_load() {
+    // build model
+    // square bar 1m long 50mmx50mm
+    let elem0 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![250.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let elem1 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![250.,0.,0.])), utils::Coord3D::new(Some(vec![500.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let elem2 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![500.,0.,0.])), utils::Coord3D::new(Some(vec![750.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let elem3 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![750.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let connections = vec![[0,1], [1,2], [2,3], [3,4]];
+
+    // Set constraints
+    let f_vec = vec![
+        None, None, None, None, None, None,
+        Some(0.), Some(0.), Some(0.), Some(0.), Some(0.), Some(0.),
+        Some(0.), Some(0.), Some(0.), Some(0.), Some(0.), Some(0.),
+        Some(0.), Some(0.), Some(0.), Some(0.), Some(0.), Some(0.),
+        Some(0.), Some(500.), Some(0.), Some(0.), Some(0.), Some(0.),
+    ];
+    let d_vec = vec![
+        Some(0.), Some(0.), Some(0.), Some(0.), Some(0.), Some(0.),
+        None, None, None, None, None, None,
+        None, None, None, None, None, None,
+        None, None, None, None, None, None,
+        None, None, None, None, None, None,
+    ];
+
+    // assemble global stiffness matrix
+    let stff = stsys_lib::beam12_gen_stiffness(&vec![elem0, elem1, elem2, elem3], &connections);
+
+    // Solve the model
+    let f_vec_sol;
+    let d_vec_sol;
+    (f_vec_sol, d_vec_sol) = stsys_lib::solve_static(f_vec, &stff, d_vec);
+
+    // load model --------------------------------------------------------------
+    let (elements_l, connections_l, f_vec_l, d_vec_l) = parser::cfg_parser("tests/test_models/model_1.cfg");
+
+    // assemble global stiffness matrix
+    let stff_l = stsys_lib::beam12_gen_stiffness(&elements_l, &connections_l);
+
+    // solve the model
+    let f_vec_sol_l;
+    let d_vec_sol_l;
+    (f_vec_sol_l, d_vec_sol_l) = stsys_lib::solve_static(f_vec_l.unwrap(), &stff_l, d_vec_l.unwrap());
+
+    // check results -----------------------------------------------------------
+    dbg!(&f_vec_sol, &d_vec_sol);
+    test_utils::assert_eq_f_vec(
+        &f_vec_sol, 
+        &f_vec_sol_l,
+        1e-6
+    );
+    test_utils::assert_eq_f_vec(
+        &d_vec_sol, 
+        &d_vec_sol_l,
+        1e-6
+    );
+}
+
+#[test]
 fn beam12_cantilever_4e_modal() {
     // build model
     // square bar 1m long 50mmx50mm
@@ -165,13 +259,13 @@ fn beam12_cantilever_4e_modal() {
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
 
-    // Assemble global stiffness matrix
+    // assemble global stiffness matrix
     let stff = stsys_lib::beam12_gen_stiffness(&vec![elem0, elem1, elem2, elem3], &connections);
 
-    // Solve the model
+    // solve the model
     let (mut freq, modes) = stsys_lib::modal_free(&stff);
 
-    // Check results (NEED VERIFICATION!)
+    // check results (NEED VERIFICATION!)
     dbg!(&freq);
     dbg!(&modes);
     let mut gt = vec![
@@ -213,5 +307,79 @@ fn beam12_cantilever_4e_modal() {
         &freq, 
         &gt,
         1e-1
+    );
+}
+
+#[test]
+fn beam12_cantilever_4e_modal_load() {
+    // build model
+    // square bar 1m long 50mmx50mm
+    let elem0 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![0.,0.,0.])), utils::Coord3D::new(Some(vec![250.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let elem1 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![250.,0.,0.])), utils::Coord3D::new(Some(vec![500.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let elem2 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![500.,0.,0.])), utils::Coord3D::new(Some(vec![750.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let elem3 = elements::Beam12::new(
+        [utils::Coord3D::new(Some(vec![750.,0.,0.])), utils::Coord3D::new(Some(vec![1000.,0.,0.]))], // mm
+        0.,
+        utils::Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
+        utils::Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
+        8.78601e5,
+        utils::Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+    );
+
+    let connections = vec![[0,1], [1,2], [2,3], [3,4]];
+
+    // assemble global stiffness matrix
+    let stff = stsys_lib::beam12_gen_stiffness(&vec![elem0, elem1, elem2, elem3], &connections);
+
+    // solve the model
+    let (freq, modes) = stsys_lib::modal_free(&stff);
+
+    // load model --------------------------------------------------------------
+    let (elements_l, connections_l, _, _) = parser::cfg_parser("tests/test_models/model_2.cfg");
+
+    // assemble global stiffness matrix
+    let stff_l = stsys_lib::beam12_gen_stiffness(&elements_l, &connections_l);
+
+    // solve the model
+    let (freq_l, modes_l) = stsys_lib::modal_free(&stff_l);
+
+    // check results -----------------------------------------------------------
+    test_utils::assert_eq_f_vec(
+        &freq, 
+        &freq_l,
+        1e-12
+    );
+    test_utils::assert_eq_f2d_vec(
+        &modes, 
+        &modes_l,
+        1e-12
     );
 }

@@ -1,9 +1,7 @@
 //! Configuration parsers to create solvable models
 //! 
 
-use std::collections::HashMap;
 use cfg_mgr;
-use cfg_mgr::CfgData;
 
 use crate::elements;
 use crate::utils;
@@ -20,7 +18,20 @@ use crate::utils;
 /// - d_vec (if needed)
 /// 
 pub fn cfg_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>, Option<Vec<Option<f64>>>, Option<Vec<Option<f64>>>) {
-    let config = cfg_mgr::load(&path);
+    let config = cfg_mgr::load(&path).unwrap();
+    
+    if config["analysis_type"].string.trim() == "static" {
+        let (elems, connections) = geometry_parser(&path);
+        let (f_vec, d_vec) = constraints_parser(&path);
+        return (elems, connections, Some(f_vec), Some(d_vec));
+    }
+    else if config["analysis_type"].string.trim() == "modal" {
+        let (elems, connections) = geometry_parser(&path);
+        return (elems, connections, None, None);
+    }
+    else{
+        panic!("Invalid analysis type");
+    }
 
 }
 
@@ -39,39 +50,41 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
 
     // define memory buffers
     let mut pos_buff = [0, 0];
-    let mut kpt_c_buff = [vec![0.;3]; 2];
-    let mut e_buff;
-    let mut g_buff;
-    let mut i_buff;
-    let mut j_buff;
-    let mut a_buff;
-    let mut x_rot_buff;
+    let mut kpt1_c_buff = vec![0.;3];
+    let mut kpt2_c_buff = vec![0.;3];
+    let mut e_buff = vec![0.;3];
+    let mut g_buff = vec![0.;3];
+    let mut i_buff = vec![0.;3];
+    let mut j_buff = 0.;
+    let mut a_buff = vec![0.;3];
+    let mut x_rot_buff = 0.;
 
-    for e in config["model"].string.trim().split(',') {
+    for mut e in config["model"].string.trim().split(',') {
         e = e.trim();
 
         if pc != 2 { // read keypoints
-            let kpt = config[e].numeric;
+            let kpt = &config[e].numeric;
             // read connection unit
             pos_buff[pc] = kpt[0] as usize;
             // store keypoint coordinates
-            kpt_c_buff[pc] = kpt[1..=3].to_vec();
+            if pc == 0 { kpt1_c_buff = kpt[1..=3].to_vec(); }
+            else { kpt2_c_buff = kpt[1..=3].to_vec(); }
         }
         else { // read material settings
-            let m = config[e].string.trim().split(',').collect();
+            let m: Vec<&str> = config[e].string.trim().split(',').collect();
             
             // E
-            e_buff = config[m[0].trim()].numeric;
+            e_buff = config[m[0].trim()].numeric.clone();
             // G
-            g_buff = config[m[1].trim()].numeric;
+            g_buff = config[m[1].trim()].numeric.clone();
             // I
-            i_buff = config[m[2].trim()].numeric;
+            i_buff = config[m[2].trim()].numeric.clone();
             // J
-            j_buff = config[m[3].trim()].numeric[0];
+            j_buff = config[m[3].trim()].numeric.clone()[0];
             // A
-            a_buff = config[m[4].trim()].numeric;
+            a_buff = config[m[4].trim()].numeric.clone();
             // x_Rot
-            x_rot_buff = config[m[5].trim()].numeric[0];
+            x_rot_buff = config[m[5].trim()].numeric.clone()[0];
         }
 
         if pc == 2 {
@@ -79,13 +92,13 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
             connections.push(pos_buff);
             elems.push(
                 elements::Beam12::new(
-                    [utils::Coord3D::new(Some(kpt_c_buff[0]), utils::Coord3D::new(Some(kpt_c_buff[1])))], // mm
+                    [utils::Coord3D::new(Some(kpt1_c_buff.clone())), utils::Coord3D::new(Some(kpt2_c_buff.clone()))], // mm
                     x_rot_buff,
-                    utils::Coord3D::new(Some(e_buff)), // N/mm²
-                    utils::Coord3D::new(Some(g_buff)), // N/mm²
-                    utils::Coord3D::new(Some(i_buff)),
+                    utils::Coord3D::new(Some(e_buff.clone())), // N/mm²
+                    utils::Coord3D::new(Some(g_buff.clone())), // N/mm²
+                    utils::Coord3D::new(Some(i_buff.clone())),
                     j_buff,
-                    utils::Coord3D::new(Some(a_buff)), //mm²
+                    utils::Coord3D::new(Some(a_buff.clone())), //mm²
                 )
             );
             // reset pc
@@ -108,6 +121,28 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
 /// - f_vec
 /// - d_vec
 /// 
-pub fn cfg_parser(path: &str) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
-    let config = cfg_mgr::load(&path);
+pub fn constraints_parser(path: &str) -> (Vec<Option<f64>>, Vec<Option<f64>>) {
+    let config = cfg_mgr::load(&path).unwrap();
+    let mut f_vec = Vec::new();
+    let mut d_vec = Vec::new();
+
+    // gather f_vec
+    for mut i in config["f_vec"].string.trim().split(',') {
+        i = i.trim();
+        for j in &config[i].numeric {
+            if j.is_nan() { f_vec.push(None); }
+            else { f_vec.push(Some(*j)); }
+        }
+    }
+
+    // gather d_vec
+    for mut i in config["d_vec"].string.trim().split(',') {
+        i = i.trim();
+        for j in &config[i].numeric {
+            if j.is_nan() { d_vec.push(None); }
+            else { d_vec.push(Some(*j)); }
+        }
+    }
+
+    return (f_vec, d_vec);
 }
