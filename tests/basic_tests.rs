@@ -610,6 +610,17 @@ fn eigen_1() {
     
     // Check eigenvectors are correct (A - lambda * I) * vec = 0
     dbg!(&vec);
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
     for i in 0..val.len() {
         test_utils::assert_eq_f2d_vec(
             &mat_math::mul_mat(&mat_math::add_mat(&a,&mat_math::scxmat(val[i], &sprs_ops::eye(9).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
