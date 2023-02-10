@@ -98,22 +98,22 @@ fn add_1() {
     // Check as dense
     assert_eq!(
         rsparse::add(&a_sparse, &b_sparse, 1., 1.).to_dense(),
-        mat_math::add_mat(&a, &b)
+        mat_math::add_mat(&a, &b, 1., 1.)
     );
 
     // Check B+A
     assert_eq!(
         rsparse::add(&b_sparse, &a_sparse, 1., 1.).to_dense(),
-        mat_math::add_mat(&b, &a)
+        mat_math::add_mat(&b, &a, 1., 1.)
     );
 
     // Check 2A - A = A
     assert_eq!(
         rsparse::add(&a_sparse, &a_sparse, 2., -1.).to_dense(),
-        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a))
+        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a), 1., 1.)
     );
     assert_eq!(
-        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a)),
+        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a), 1., 1.),
         a
     );
 }
@@ -153,22 +153,22 @@ fn add_2() {
     // Check as dense
     assert_eq!(
         rsparse::add(&a_sparse, &b_sparse, 1., 1.).to_dense(),
-        mat_math::add_mat(&a, &b)
+        mat_math::add_mat(&a, &b, 1., 1.)
     );
     
     // Check B+A
     assert_eq!(
         rsparse::add(&b_sparse, &a_sparse, 1., 1.).to_dense(),
-        mat_math::add_mat(&b, &a)
+        mat_math::add_mat(&b, &a, 1., 1.)
     );
 
     // Check 2A - A = A
     assert_eq!(
         rsparse::add(&a_sparse, &a_sparse, 2., -1.).to_dense(),
-        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a))
+        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a), 1., 1.)
     );
     assert_eq!(
-        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a)),
+        mat_math::add_mat(&mat_math::scxmat(2., &a), &mat_math::scxmat(-1., &a), 1., 1.),
         a
     );
 }
@@ -583,4 +583,38 @@ fn eigenval_1() {
     r.sort_by(|a, b| a.partial_cmp(b).unwrap());
     val.sort_by(|a, b| a.partial_cmp(b).unwrap());
     test_utils::assert_eq_f_vec(&val, &r, 1e-5);
+}
+
+#[test]
+fn eigen_1() {
+    let a =  vec![vec![9.216215, 0.0, 0.290582, 0.0, 0.039249, 0.0, 0.0, 0.0, 0.0],vec![0.0, 9.0, 0.0, 0.0, 0.164029, 0.0, 0.0, 0.0, 0.229926],vec![0.290582, 0.0, 9.0, 0.0, 0.0, 0.418181, 0.0, 0.0, 0.0],vec![0.0, 0.0, 0.0, 9.304877, 0.0, 0.695030, 0.0, 0.0, 0.0],vec![0.039249, 0.164029, 0.0, 0.0, 9.0, 0.0, 0.217734, 0.0, 0.293767],vec![0.0, 0.0, 0.418181, 0.695030, 0.0, 9.0, 0.361987, 0.453636, 0.187544],vec![0.0, 0.0, 0.0, 0.0, 0.217734, 0.361987, 9.0, 0.054668, 0.0],vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.453636, 0.054668, 9.0, 0.043284],vec![0.0, 0.229926, 0.0, 0.0, 0.293767, 0.187544, 0.0, 0.043284, 9.0]];
+    let mut a_sparse = Sprs::new();
+    a_sparse.from_vec(&a);
+
+    let e_val = vec![
+        8.0400,
+        8.6407,
+        8.7980,
+        8.8532,
+        9.0243,
+        9.1453,
+        9.4078,
+        9.4831,
+       10.1286,
+    ];
+
+    let (mut val, vec)  = sprs_ops::eig(&a_sparse, f64::EPSILON, 1000);
+    val.sort_by(|a, b| a.partial_cmp(b).unwrap());
+
+    test_utils::assert_eq_f_vec(&val, &e_val, 1e-3);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&vec);
+    for i in 0..val.len() {
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&a,&mat_math::scxmat(val[i], &sprs_ops::eye(9).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; 9], 
+            1e-12
+        );
+    }
 }

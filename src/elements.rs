@@ -75,7 +75,7 @@ pub fn align_vector_3df(v: &Coord3D<f64>, d: &Coord3D<f64>) -> Vec<Vec<f64>> {
 
     let vmat_sq = mul_mat(&vmat, &vmat);
 
-    let r = add_mat(&add_mat(&eye, &vmat), &scxmat(h, &vmat_sq));
+    let r = add_mat(&add_mat(&eye, &vmat, 1., 1.), &scxmat(h, &vmat_sq), 1., 1.);
 
     return r;
 }

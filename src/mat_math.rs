@@ -231,7 +231,7 @@ pub fn cross_prod_3d<T:Num + std::ops::Mul<Output = T> + std::ops::Sub<Output = 
 ///     vec![5, 5, 5],
 /// ];
 ///
-/// let c = add_mat(&a, &b);
+/// let c = add_mat(&a, &b, 1, 1);
 ///
 /// assert_eq!(&c, &vec![
 ///     vec![6, 7, 8],
@@ -244,7 +244,11 @@ pub fn cross_prod_3d<T:Num + std::ops::Mul<Output = T> + std::ops::Sub<Output = 
 pub fn add_mat<T: Num + std::ops::Add<Output = T>>(
     a: &Vec<Vec<T>>,
     b: &Vec<Vec<T>>,
-) -> Vec<Vec<T>> {
+    alpha: T,
+    beta: T
+) -> Vec<Vec<T>>
+    where <T as std::ops::Mul>::Output: std::ops::Add<Output = T>
+    {
     // Check sizes
     let len_i = a.len();
     let len_j = a[0].len();
@@ -257,7 +261,7 @@ pub fn add_mat<T: Num + std::ops::Add<Output = T>>(
     for i in 0..len_i {
         let mut row = Vec::new();
         for j in 0..len_j {
-            row.push(a[i][j] + b[i][j]);
+            row.push(alpha*a[i][j] + beta*b[i][j]);
         }
         o.push(row);
     }
