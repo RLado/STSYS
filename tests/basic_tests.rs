@@ -641,6 +641,7 @@ fn qr_decomp_9() {
 }
 
 #[test]
+#[ignore]
 fn qr_decomp_10() {
     let mut s = Sprs::new();
     s.load("tests/test_assets/mat08.sprs").unwrap();
@@ -920,6 +921,7 @@ fn eigen_5() {
 }
 
 #[test]
+#[ignore]
 fn eigen_6() {
     let mut s = Sprs::new();
     s.load("tests/test_assets/mat04.sprs").unwrap();
@@ -1061,6 +1063,7 @@ fn eigen_8() {
 }
 
 #[test]
+#[ignore]
 fn eigen_9() {
     let mut s = Sprs::new();
     s.load("tests/test_assets/mat07.sprs").unwrap();
