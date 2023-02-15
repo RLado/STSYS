@@ -3,27 +3,48 @@
 
 use rsparse::data::{Sprs, Trpl};
 
-/// Find the real eigenvalues of a `Sprs` matrix using the QR algorithm
+use crate::mat_math;
+
+/// Find the real eigenvalues of a square `Sprs` matrix using the QR algorithm
 /// 
-/// max_iter ~ 1_000
+/// # Parameters:
+/// mat: an n x n matrix
+/// tol: tolerance for convergence
+/// max_iter: maximum number of iterations (~200 is a good number)
 /// 
-pub fn eig(mat: &Sprs, tol: f64, max_iter: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
+/// # Returns:
+/// (convergence, eigenvalues, eigenvectors)
+/// 
+/// Note that the eigenvectors may not be complete if eigenvalues are repeated.
+/// 
+pub fn eig(mat: &Sprs, tol: f64, max_iter: usize) -> (bool, Vec<f64>, Vec<Vec<f64>>) {
     let (mut ak, _) = hessenberg(&mat);
     let eye = eye(mat.m);
 
+    let mut cb = false; // convergence break
+
     for _ in 0..max_iter {
-        // s_k is the last element of the diagonal of A_k
+        // s_k is a Rayleigh shift that starts on the last element of the diagonal of A_k and moves upwards
         let mut sk = 0.;
-        for i in ak.p[ak.n-1]..ak.p[ak.n]{
-            if ak.i[i as usize] == ak.n-1 {
-                sk = ak.x[i as usize];
+        let sd = sub_diag(&ak);
+        for i in (0..sd.len()).rev() {
+            if sd[i].abs() > tol {
+                sk = diag(&ak)[i+1];
                 break;
             }
+            else if i == 0 {
+                cb = true;
+            }
         }
+        if cb {
+            break;
+        }
+
         let smult = scxmat(sk, &eye);
 
         // QR decomposition of A_k - s_k * I
-        let (q, r) = qr_decomp(&rsparse::add(&ak, &smult, 1., -1.));
+        let (q, r, p) = qr_decomp(&rsparse::add(&ak, &smult, 1., -1.));
+        let q = rsparse::multiply(&p, &q);
         // Add smult back in
         ak = rsparse::add(&rsparse::multiply(&r,&q), &smult, 1., 1.);
 
@@ -33,77 +54,73 @@ pub fn eig(mat: &Sprs, tol: f64, max_iter: usize) -> (Vec<f64>, Vec<Vec<f64>>) {
                 ak.x[i] = 0.;
             }
         }
-
-        // check for convergence
-        let mut conv = true;
-        for i in 0..ak.n-1 {
-            for p in ak.p[i]..ak.p[i+1]{ // loop over columns
-                if ak.i[p as usize] > i {
-                    if ak.x[p as usize].abs() > tol {
-                        conv = false;
-                        break;
-                    }
-                }
-            }
-        }
-        if conv {
-            break;
-        }
     }
 
-    let mut lambda = vec![0.; ak.m];
-    for i in 0..ak.n{
-        for p in ak.p[i]..ak.p[i+1]{
-            if ak.i[p as usize] == i {
-                lambda[i] = ak.x[p as usize];
-                break;
-            }
-        }
-    }
+    let lambda = diag(&ak);
 
     // calculate eigenvectors (A - λI) v = 0
     let mut evec = Vec::with_capacity(mat.m);
-    let mut b;
     for l in &lambda {
-        let a = rsparse::add(&mat, &scxmat(*l, &eye), 1., -1.);
-        b = vec![0.; mat.m];
-        rsparse::lusol(&a, &mut b, 1, 1e-12);
-        evec.push(b);
+        let mut tol = f64::min(f64::EPSILON, tol);
+        let mut v = vec![vec![]; mat.m];
+        while v[0].len() == 0 && tol < 1e6 { // arbitrary 1e6 limit
+            v = null(&rsparse::add(&mat, &scxmat(*l, &eye), 1., -1.), Some(tol));
+            tol *= 10.;
+        }
+        if v[0].len() != 0{
+            evec.push(mat_math::transpose(&v)[0].clone());
+        }
     }
 
-    
-    return (lambda, evec);
+    return (cb, lambda, evec);
 }
 
 /// Calculate sparse matrix QR decomposition
 /// 
 /// # Returns:
-/// Q and R matrices, in that order.
+/// Qx, R and P matrices, in that order. P is a permutation matrix used for 
+/// obtaining Q (Q = P * Qx).
+/// ```math
+///     A = Q * R
+///     A = P * Qx * R
+/// ```
+///
 /// 
-pub fn qr_decomp(s: &Sprs) -> (Sprs, Sprs) {
-    let sym = rsparse::sqr(&s, 2, true);
+pub fn qr_decomp(s: &Sprs) -> (Sprs, Sprs, Sprs) {
+    let sym = rsparse::sqr(&s, -1, true);
     let qr = rsparse::qr(&s,&sym);
-    let eye = eye(s.m);
+    let eye = eye(s.n);
     let mut q = eye.clone();
 
     // H_n = I - beta_n * v_n * v_n^T (v_n is the n-th column of V)
     // Q = H_1 * H_2 * ... * H_n
-    for n in 0..qr.b.len() {
+    for n in 0..s.n {
         let mut vn = Trpl::new();
         vn.m = qr.l.m;
+
         for i in qr.l.p[n]..qr.l.p[n+1]{
             vn.append(qr.l.i[i as usize], 0, qr.l.x[i as usize]);
         }
         let vn = vn.to_sprs();
+
         q = rsparse::multiply(&q, &rsparse::add(&eye, &scxmat(qr.b[n], &rsparse::multiply(&vn, &rsparse::transpose(&vn))), 1., -1.));
     }
 
-    return (q, qr.u);
+    // Calculate row permutation matrix P
+    let mut p = Trpl::new();
+    let pinv = sym.pinv.unwrap()[0..s.n].to_vec();
+    for i in &pinv {
+        let i = *i as usize;
+        p.append(pinv[i] as usize, i, 1.);
+    }
+    let p = p.to_sprs();
+
+    return (q, qr.u, rsparse::transpose(&p));
 }
 
 /// Scalar times sparse matrix
 /// 
-fn scxmat(s: f64, mat: &Sprs) -> Sprs {
+pub fn scxmat(s: f64, mat: &Sprs) -> Sprs {
     let mut r = mat.clone();
     for i in 0..mat.x.len() {
         r.x[i] = mat.x[i] * s;
@@ -195,6 +212,29 @@ pub fn hessenberg(a: &Sprs) -> (Sprs, Sprs) {
     return (h, q);
 }
 
+/// Find the null space of a square `Sprs` matrix using QR decomposition
+/// 
+pub fn null(a: &Sprs, tol: Option<f64>) -> Vec<Vec<f64>> {
+    let t;
+    if tol.is_none() {
+        t = f64::EPSILON;
+    }
+    else {
+        t = tol.unwrap();
+    }
+    let (q, r, p) = qr_decomp(&rsparse::transpose(&a)); // A^T = QR
+    let q = rsparse::multiply(&p, &q);
+    let rnk = a.n - diag(&r).iter().filter(|&&x| x < t).count();
+    let qd = q.to_dense();
+    let mut null = vec![vec![0.; q.n-rnk]; q.m];
+    for i in 0..q.m {
+        for j in rnk..q.n {
+            null[i][j-rnk] = qd[i][j];
+        }
+    }
+    return null;
+}
+
 /// Create a identity `Sprs` matrix
 /// 
 pub fn eye(n: usize) -> Sprs {
@@ -204,6 +244,48 @@ pub fn eye(n: usize) -> Sprs {
         eye.append(i, i, 1.);
     }
     return eye.to_sprs();
+}
+
+/// Copy the diagonal of a matrix to a vector
+/// 
+pub fn diag(mat: &Sprs) -> Vec<f64> {
+    let mut diag = vec![0.; mat.m];
+    for i in 0..mat.n{
+        for p in mat.p[i]..mat.p[i+1]{
+            if mat.i[p as usize] == i {
+                diag[i] = mat.x[p as usize];
+                break;
+            }
+        }
+    }
+
+    return diag;
+}
+
+/// Copy the sub-diagonal of a matrix to a vector
+/// 
+pub fn sub_diag(mat: &Sprs) -> Vec<f64> {
+    let mut sdiag = vec![0.; mat.m-1];
+    for i in 0..mat.n{
+        for p in mat.p[i]..mat.p[i+1]{
+            if mat.i[p as usize] == i + 1 {
+                sdiag[i] = mat.x[p as usize];
+                break;
+            }
+        }
+    }
+
+    return sdiag;
+}
+
+/// Compute the 2-norm of a `Sprs` matrix
+/// 
+pub fn norm2(v: &Sprs) -> f64 {
+    let mut norm = 0.;
+    for i in 0..v.x.len() {
+        norm += v.x[i]*v.x[i];
+    }
+    return norm.sqrt();
 }
 
 /// Return the sign of a given f64

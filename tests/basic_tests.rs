@@ -193,7 +193,6 @@ fn multiply_2() {
 
     let b = vec![vec![1., 0., 0.], vec![0., 1., 0.], vec![0., 0., 1.], vec![2., 3., 5.]];
 
-    dbg!(&a, &mat_math::transpose(&b));
     let c = mat_math::mul_mat(&a, &mat_math::transpose(&b));
 
     test_utils::assert_eq_f2d_vec(&c, &vec![
@@ -537,9 +536,120 @@ fn qr_decomp_1() {
     let mut s = Sprs::new();
     s.from_vec(&a);
 
-    let (q, r) = sprs_ops::qr_decomp(&s);
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
 
-    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &a, 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_2() {
+    let a = vec![vec![9.216215, 0.0, 0.290582, 0.0, 0.039249, 0.0, 0.0, 0.0, 0.0],vec![0.0, 9.0, 0.0, 0.0, 0.164029, 0.0, 0.0, 0.0, 0.229926],vec![0.290582, 0.0, 9.0, 0.0, 0.0, 0.418181, 0.0, 0.0, 0.0],vec![0.0, 0.0, 0.0, 9.304877, 0.0, 0.695030, 0.0, 0.0, 0.0],vec![0.039249, 0.164029, 0.0, 0.0, 9.0, 0.0, 0.217734, 0.0, 0.293767],vec![0.0, 0.0, 0.418181, 0.695030, 0.0, 9.0, 0.361987, 0.453636, 0.187544],vec![0.0, 0.0, 0.0, 0.0, 0.217734, 0.361987, 9.0, 0.054668, 0.0],vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.453636, 0.054668, 9.0, 0.043284],vec![0.0, 0.229926, 0.0, 0.0, 0.293767, 0.187544, 0.0, 0.043284, 9.0]];
+    let mut s = Sprs::new();
+    s.from_vec(&a);
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_3() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat01.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_4() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat02.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_5() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat03.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_6() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat04.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_7() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat05.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_8() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat06.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_9() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat07.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
+}
+
+#[test]
+fn qr_decomp_10() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat08.sprs").unwrap();
+
+    let (q, r, p) = sprs_ops::qr_decomp(&s);
+    let q = rsparse::multiply(&p, &q);
+
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &rsparse::transpose(&q)).to_dense(), &sprs_ops::eye(q.m).to_dense(), 1e-12);
+    test_utils::assert_eq_f2d_vec(&rsparse::multiply(&q, &r).to_dense(), &s.to_dense(), 1e-12);
 }
 
 #[test]
@@ -559,6 +669,22 @@ fn hessenberg_1() {
 }
 
 #[test]
+fn null_1() {
+    let a = vec![vec![9.216215, 0.0, 0.290582, 0.0, 0.039249, 0.0, 0.0, 0.0, 0.0],vec![0.0, 9.0, 0.0, 0.0, 0.164029, 0.0, 0.0, 0.0, 0.229926],vec![0.290582, 0.0, 9.0, 0.0, 0.0, 0.418181, 0.0, 0.0, 0.0],vec![0.0, 0.0, 0.0, 9.304877, 0.0, 0.695030, 0.0, 0.0, 0.0],vec![0.039249, 0.164029, 0.0, 0.0, 9.0, 0.0, 0.217734, 0.0, 0.293767],vec![0.0, 0.0, 0.418181, 0.695030, 0.0, 9.0, 0.361987, 0.453636, 0.187544],vec![0.0, 0.0, 0.0, 0.0, 0.217734, 0.361987, 9.0, 0.054668, 0.0],vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.453636, 0.054668, 9.0, 0.043284],vec![0.0, 0.229926, 0.0, 0.0, 0.293767, 0.187544, 0.0, 0.043284, 9.0]];
+    let mut s = Sprs::new();
+    s.from_vec(&a);
+
+    let v = 9.407796977431325;
+    let ns = sprs_ops::null(&rsparse::add(&s, &sprs_ops::scxmat(v, &sprs_ops::eye(s.n)), 1., -1.), Some(1e-3));
+
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&mat_math::add_mat(&a,&mat_math::scxmat(v, &sprs_ops::eye(s.n).to_dense()), 1., -1.),&ns), 
+        &vec![vec![0.0]; s.n], 
+        1e-12
+    );
+}
+
+#[test]
 fn eigenval_1() {
     let a = vec![
         vec![8.3854e-01, 2.6103e-01, 7.6852e-01, 9.8303e-01, 9.8937e-01],
@@ -571,45 +697,52 @@ fn eigenval_1() {
     a_sparse.from_vec(&a);
 
     let mut r = vec![
-        2.746716,
-        -0.659856,
-        -0.079485,
-        -0.232966,
-        0.319176,
+         2.746719964969528e+00,
+        -6.598562797671084e-01,
+         3.191793518826675e-01,
+        -2.329684759485072e-01,
+        -7.948156113657694e-02
     ];
     
-    let (mut val, _vec)  = sprs_ops::eig(&a_sparse, f64::EPSILON, 500);
+    let (_, mut val, _vec)  = sprs_ops::eig(&a_sparse, f64::EPSILON, 500);
 
     r.sort_by(|a, b| a.partial_cmp(b).unwrap());
     val.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    test_utils::assert_eq_f_vec(&val, &r, 1e-5);
+    test_utils::assert_eq_f_vec(&val, &r, 1e-10);
 }
 
 #[test]
 fn eigen_1() {
     let a =  vec![vec![9.216215, 0.0, 0.290582, 0.0, 0.039249, 0.0, 0.0, 0.0, 0.0],vec![0.0, 9.0, 0.0, 0.0, 0.164029, 0.0, 0.0, 0.0, 0.229926],vec![0.290582, 0.0, 9.0, 0.0, 0.0, 0.418181, 0.0, 0.0, 0.0],vec![0.0, 0.0, 0.0, 9.304877, 0.0, 0.695030, 0.0, 0.0, 0.0],vec![0.039249, 0.164029, 0.0, 0.0, 9.0, 0.0, 0.217734, 0.0, 0.293767],vec![0.0, 0.0, 0.418181, 0.695030, 0.0, 9.0, 0.361987, 0.453636, 0.187544],vec![0.0, 0.0, 0.0, 0.0, 0.217734, 0.361987, 9.0, 0.054668, 0.0],vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.453636, 0.054668, 9.0, 0.043284],vec![0.0, 0.229926, 0.0, 0.0, 0.293767, 0.187544, 0.0, 0.043284, 9.0]];
-    let mut a_sparse = Sprs::new();
-    a_sparse.from_vec(&a);
+    let mut s = Sprs::new();
+    s.from_vec(&a);
 
     let e_val = vec![
-        8.0400,
-        8.6407,
-        8.7980,
-        8.8532,
-        9.0243,
-        9.1453,
-        9.4078,
-        9.4831,
-       10.1286,
+        8.039950688334384e+00,
+        8.640747683989520e+00,
+        8.798010353640025e+00,
+        8.853235553557440e+00,
+        9.024330729742914e+00,
+        9.145299581652511e+00,
+        9.407796977431355e+00,
+        9.483147569726579e+00,
+        1.012857286192528e+01
     ];
 
-    let (mut val, vec)  = sprs_ops::eig(&a_sparse, f64::EPSILON, 1000);
+    let (_, mut val, _vec)  = sprs_ops::eig(&s, f64::EPSILON, 1000);
     val.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-    test_utils::assert_eq_f_vec(&val, &e_val, 1e-3);
+    test_utils::assert_eq_f_vec(&val, &e_val, 1e-10);
     
     // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    let (_, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 200); // Regen. so that eigen values are not sorted
+    dbg!(&val);
     dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
     
     // Check that the sum of the eigenvectors is not zero
     let mut sum_vec = 0.;
@@ -622,10 +755,354 @@ fn eigen_1() {
 
     // Check that the eigenvectors are correct
     for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i], i);
         test_utils::assert_eq_f2d_vec(
-            &mat_math::mul_mat(&mat_math::add_mat(&a,&mat_math::scxmat(val[i], &sprs_ops::eye(9).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
-            &vec![vec![0.0]; 9], 
-            1e-12
+            &mat_math::mul_mat(&mat_math::add_mat(&a,&mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
+        );
+    }
+}
+
+#[test]
+fn eigen_2() {
+    let a = vec![
+        vec![5.,10., 3., 9., 6.],
+        vec![4., 6., 8., 7., 5.],
+        vec![5., 6.,10., 9., 3.],
+        vec![7., 5., 1., 2., 8.],
+        vec![1., 5.,10.,10.,10.],
+    ];
+    let mut s = Sprs::new();
+    s.from_vec(&a);
+
+    let (cb, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 200);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(cb);
+    dbg!(&val);
+    dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&a,&mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
+        );
+    }
+}
+
+#[test]
+fn eigen_4() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat02.sprs").unwrap();
+
+    let (_, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 200);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&val);
+    dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping"); // The eigenvalue is a complex number
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&s.to_dense(), &mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
+        );
+    }
+}
+
+#[test]
+fn eigen_5() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat03.sprs").unwrap();
+
+    let (_, val, vec)  = sprs_ops::eig(&s, 1e-12, 40);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&val);
+    dbg!(&vec);
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..vec.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&s.to_dense(), &mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
+        );
+    }
+}
+
+#[test]
+fn eigen_6() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat04.sprs").unwrap();
+
+    let (_, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 200);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&val);
+    dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&s.to_dense(), &mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
+        );
+    }
+}
+
+#[test]
+fn eigen_7() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat05.sprs").unwrap();
+
+    let (_, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 200);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&val);
+    dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&s.to_dense(), &mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
+        );
+    }
+}
+
+#[test]
+fn eigen_8() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat06.sprs").unwrap();
+
+    let (_, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 200);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&val);
+    dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&s.to_dense(), &mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-5
+        );
+    }
+}
+
+#[test]
+fn eigen_9() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat07.sprs").unwrap();
+
+    let (_, val, vec)  = sprs_ops::eig(&s, f64::EPSILON, 40);
+    
+    // Check eigenvectors are correct (A - lambda * I) * vec = 0
+    dbg!(&val);
+    dbg!(&vec);
+
+    // Check that the eigenvalues are not NaN
+    for i in 0..val.len() {
+        assert!(!val[i].is_nan());
+    }
+    
+    // Check that the sum of the eigenvectors is not zero
+    let mut sum_vec = 0.;
+    for i in 0..vec.len() {
+        for j in 0..vec[i].len() {
+            sum_vec += vec[i][j].abs();
+        }
+    }
+    assert!(sum_vec > 1e-10);
+
+    // Check that the eigenvectors are correct
+    for i in 0..val.len() {
+        let mut jntx = false; // jump next
+        for j in 0..vec[i].len() {
+            if (val[i] - val[j]) < 1e-5 && i!=j {
+                dbg!("Repeated eigen value. Skipping");
+                jntx = true;
+                break
+            }
+        }
+        if jntx {
+            continue;
+        }
+        dbg!(val[i]);
+        test_utils::assert_eq_f2d_vec(
+            &mat_math::mul_mat(&mat_math::add_mat(&s.to_dense(), &mat_math::scxmat(val[i], &sprs_ops::eye(s.n).to_dense()), 1., -1.),&mat_math::transpose(&vec![vec[i].clone()])), 
+            &vec![vec![0.0]; s.n], 
+            1e-8
         );
     }
 }

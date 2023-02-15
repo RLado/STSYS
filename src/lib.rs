@@ -149,6 +149,6 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
 /// Returns all the real eigenvalues of the given stiffness matrix.
 /// 
 pub fn modal_free(global_stff: &Sprs) -> (Vec<f64>, Vec<Vec<f64>>) {
-    let (freq, modes) = sprs_ops::eig(&global_stff, f64::EPSILON, 1_000);
+    let (_cb, freq, modes) = sprs_ops::eig(&global_stff, f64::EPSILON, 1_000);
     return (freq, modes);
 }
