@@ -144,7 +144,7 @@ pub fn solve_static (f_vec: Vec<Option<f64>>, global_stff: &Sprs, d_vec: Vec<Opt
     return (f_vec_sol, d_vec_sol);
 }
 
-/// Performs a free body modal analysis
+/// Performs a free body modal analysis (DOES NOT WORK YET)
 /// 
 /// Returns all the real eigenvalues of the given mass+stiffness matrix. (WORK IN PROGRESS)
 /// 
