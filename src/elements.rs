@@ -142,18 +142,10 @@ impl Beam12{
     /// ⚠ If you use this function more than once on a `Beam12` be mindful of the
     /// rotation applied to `e`,`g`, and `i`.
     /// 
-    /// # Parameters:
-    /// - nodes: Nodes defining the element's span. eg. {{0,0,0},{1,0,0}}
-    /// - x_rot: Element rotation with respect of local X axis (deg)
-    /// - e: Elastic modulus {Ex, Ey, Ez}
-    /// - g: Shear modulus {Gx, Gy, Gz}
-    /// - i: Moment of inertia {Ix,Iy,Iz}. Note: Ix = Torsional constant of cross-section (j)
-    /// - a: Area {Ax,Ay,Az}
-    /// 
     pub fn gen_stff(&mut self) {
         // calculate elements properties
         let l = dist_3df(&self.nodes[0], &self.nodes[1]); //elem_len
-        // let a = l/2.;
+        let a = l/2.;
 
         // populate the rotation matrix
         let p2 = vec![l, 0., 0.]; // p1 = [0., 0., 0.]
@@ -191,43 +183,19 @@ impl Beam12{
         }
 
         // populate the stiffness matrix
-        let phi_y = 12.*(self.e.z*self.i.z/(self.g.y*self.a.y*l.powi(2)));
-        let phi_z = 12.*(self.e.y*self.i.y/(self.g.z*self.a.z*l.powi(2)));
-
-        let kz = scxmat(
-            self.e.z*self.i.z/((1. + phi_y)*l.powi(2)), 
-            &vec![
-                vec![12., 6.*l, -12., 6.*l],
-                vec![0., (4.+phi_y)*l.powi(2), -6.*l, (2.-phi_y)*l.powi(2)],
-                vec![0., 0., 12., -6.*l],
-                vec![0., 0., 0., (4.+phi_y)*l.powi(2)]
-            ]
-        );
-        let ky = scxmat(
-            self.e.y*self.i.y/((1. + phi_z)*l.powi(2)), 
-            &vec![
-                vec![12., -6.*l, -12., -6.*l],
-                vec![0., (4.+phi_z)*l.powi(2), 6.*l, (2.-phi_z)*l.powi(2)],
-                vec![0., 0., 12., 6.*l],
-                vec![0., 0., 0., (4.+phi_z)*l.powi(2)]
-            ]
-        );
-
-        let eal = self.e.x*self.a.x/l;
-        let gjl = self.g.x*self.j/l;
         self.stff_l = vec![
-            vec![eal, 0., 0., 0., 0., 0., -eal, 0., 0., 0., 0., 0.], // 1
-            vec![0., kz[0][0], 0., 0., 0., kz[0][1], 0., kz[0][2], 0., 0., 0., kz[0][3]], // 2
-            vec![0., 0., ky[0][0], 0., ky[0][1], 0., 0., 0., ky[0][2], 0., ky[0][3], 0.], // 3
-            vec![0., 0., 0., gjl, 0., 0., 0., 0., 0., -gjl, 0., 0.], // 4
-            vec![0., 0., ky[0][1], 0., ky[1][1], 0., 0., 0., ky[1][2], 0., ky[1][3], 0.], // 5
-            vec![0., kz[0][1], 0., 0., 0., kz[1][1], 0., kz[1][2], 0., 0., 0., kz[1][3]], // 6
-            vec![-eal, 0., 0., 0., 0., 0., eal, 0., 0., 0., 0., 0.], // 7
-            vec![0., kz[0][2], 0., 0., 0., kz[1][2], 0., kz[2][2], 0., 0., 0., kz[2][3]], // 8
-            vec![0., 0., ky[0][2], 0., ky[1][2], 0., 0., 0., ky[2][2], 0., ky[2][3], 0.], // 9
-            vec![0., 0., 0., -gjl, 0., 0., 0., 0., 0., gjl, 0., 0.], // 10
-            vec![0., 0., ky[0][3], 0., ky[1][3], 0., 0., 0., ky[2][3], 0., ky[3][3], 0.], // 11
-            vec![0., kz[0][3], 0., 0., 0., kz[1][3], 0., kz[2][3], 0., 0., 0., kz[3][3]], // 12
+            vec![self.a.x*self.e.x/(2.*a), 0., 0., 0., 0., 0., -self.a.x*self.e.x/(2.*a), 0., 0., 0., 0., 0.], // 1
+            vec![0., 3.*self.e.z*self.i.z/(2.*a.powi(3)), 0., 0., 0., 3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., -3.*self.e.z*self.i.z/(2.*a.powi(3)), 0., 0., 0., 3.*self.e.z*self.i.z/(2.*a.powi(2))], // 2
+            vec![0., 0., 3.*self.e.y*self.i.y/(2.*a.powi(3)), 0., -3.*self.e.y*self.i.y/(2.*a.powi(2)), 0., 0., 0., -3.*self.e.y*self.i.y/(2.*a.powi(3)), 0., -3.*self.e.y*self.i.y/(2.*a.powi(2)), 0.], // 3
+            vec![0., 0., 0., self.g.x*self.j/(2.*a), 0., 0., 0., 0., 0., -self.g.x*self.j/(2.*a), 0., 0.], // 4
+            vec![0., 0., -3.*self.e.y*self.i.y/(2.*a.powi(2)),0., 2.*self.e.y*self.i.y/a, 0., 0., 0., 3.*self.e.y*self.i.y/(2.*a.powi(2)), 0., self.e.y*self.i.y/a, 0.], // 5
+            vec![0., 3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 0., 0., 2.*self.e.z*self.i.z/a, 0., -3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 0., 0., self.e.z*self.i.z/a], // 6
+            vec![-self.a.x*self.e.x/(2.*a), 0., 0., 0., 0., 0., self.a.x*self.e.x/(2.*a), 0., 0., 0., 0., 0.], // 7
+            vec![0., -3.*self.e.z*self.i.z/(2.*a.powi(3)), 0., 0., 0., -3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 3.*self.e.z*self.i.z/(2.*a.powi(3)), 0., 0., 0., -3.*self.e.z*self.i.z/(2.*a.powi(2))], // 8
+            vec![0., 0., -3.*self.e.y*self.i.y/(2.*a.powi(3)), 0., 3.*self.e.y*self.i.y/(2.*a.powi(2)), 0., 0., 0., 3.*self.e.y*self.i.y/(2.*a.powi(3)), 0., 3.*self.e.y*self.i.y/(2.*a.powi(2)), 0.], // 9
+            vec![0., 0., 0., -self.g.x*self.j/(2.*a), 0., 0., 0., 0., 0., self.g.x*self.j/(2.*a), 0., 0.], // 10
+            vec![0., 0., -3.*self.e.y*self.i.y/(2.*a.powi(2)), 0., self.e.y*self.i.y/a, 0., 0., 0., 3.*self.e.y*self.i.y/(2.*a.powi(2)), 0., 2.*self.e.y*self.i.y/a, 0.], // 11
+            vec![0., 3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 0., 0., self.e.z*self.i.z/a, 0., -3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 0., 0., 2.*self.e.z*self.i.z/a], // 12
         ];
 
         // transform local stiffness matrix into global stiffness matrix
