@@ -11,6 +11,7 @@ fn beam12_1() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
     elem.gen_stff();
 
@@ -19,13 +20,6 @@ fn beam12_1() {
     for i in 0..12 {
         eye12[i][i] = 1.;
     }
-
-    utils::print_matrix(&elem.rot);
-    println!("---");
-    utils::print_matrix(&eye12);
-    assert_eq!(&elem.rot, &eye12);
-
-    println!("---");
 
     utils::print_matrix(&elem.stff_l);
     println!("---");
@@ -44,6 +38,7 @@ fn beam12_cantilever_4e() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem1 = elements::Beam12::new(
@@ -53,6 +48,7 @@ fn beam12_cantilever_4e() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem2 = elements::Beam12::new(
@@ -62,6 +58,7 @@ fn beam12_cantilever_4e() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem3 = elements::Beam12::new(
@@ -71,6 +68,7 @@ fn beam12_cantilever_4e() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -124,6 +122,7 @@ fn beam12_cantilever_4e_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem1 = elements::Beam12::new(
@@ -133,6 +132,7 @@ fn beam12_cantilever_4e_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem2 = elements::Beam12::new(
@@ -142,6 +142,7 @@ fn beam12_cantilever_4e_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem3 = elements::Beam12::new(
@@ -151,6 +152,7 @@ fn beam12_cantilever_4e_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -216,6 +218,7 @@ fn beam12_cantilever_4e_modal() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem1 = elements::Beam12::new(
@@ -225,6 +228,7 @@ fn beam12_cantilever_4e_modal() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem2 = elements::Beam12::new(
@@ -234,6 +238,7 @@ fn beam12_cantilever_4e_modal() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem3 = elements::Beam12::new(
@@ -243,6 +248,7 @@ fn beam12_cantilever_4e_modal() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -309,6 +315,7 @@ fn beam12_cantilever_4e_modal_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem1 = elements::Beam12::new(
@@ -318,6 +325,7 @@ fn beam12_cantilever_4e_modal_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem2 = elements::Beam12::new(
@@ -327,6 +335,7 @@ fn beam12_cantilever_4e_modal_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let elem3 = elements::Beam12::new(
@@ -336,6 +345,7 @@ fn beam12_cantilever_4e_modal_load() {
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
         Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
         2500., //mm²
+        7850., // kg/m³
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];

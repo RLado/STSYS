@@ -97,12 +97,18 @@ pub struct Beam12{
     i: Coord3D<f64>,
     /// Area {Ax}
     a: f64,
+    /// Density
+    rho: f64,
     /// Stiffness matrix (local axis)
     pub stff_l: Vec<Vec<f64>>,
     /// Stiffness matrix (global axis)
     pub stff_g: Vec<Vec<f64>>,
+    /// Mass matrix (local axis)
+    pub mass_l: Vec<Vec<f64>>,
+    /// Mass matrix (global axis)
+    pub mass_g: Vec<Vec<f64>>,
     /// Rotation matrix
-    pub rot: Vec<Vec<f64>>,
+    rot: Vec<Vec<f64>>,
 }
 
 impl Beam12{
@@ -116,8 +122,9 @@ impl Beam12{
     /// - i: Moment of inertia {Ix,Iy,Iz}
     /// - j: Torsional constant of cross-section
     /// - a: Area {Ax,Ay,Az}
+    /// - rho: Density
     /// 
-    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, a: f64)-> Beam12{
+    pub fn new(nodes: [Coord3D<f64>;2], x_rot: f64, e: Coord3D<f64>, g: Coord3D<f64>, i: Coord3D<f64>, a: f64, rho: f64)-> Beam12{
         // create an instance of Beam12
         let elem = Beam12{
             nodes: nodes,
@@ -126,8 +133,11 @@ impl Beam12{
             g: g,
             i: i,
             a: a,
+            rho: rho,
             stff_l: Vec::new(),
             stff_g: Vec::new(),
+            mass_l: Vec::new(),
+            mass_g: Vec::new(),
             rot: Vec::new(),
         };
 
@@ -195,7 +205,28 @@ impl Beam12{
             vec![0., 3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 0., 0., self.e.z*self.i.z/a, 0., -3.*self.e.z*self.i.z/(2.*a.powi(2)), 0., 0., 0., 2.*self.e.z*self.i.z/a], // 12
         ];
 
+        // populate the mass matrix
+        let rxsq = self.i.x/self.a;
+        self.mass_l = vec![
+            vec![70., 0., 0., 0., 0., 0., 35., 0., 0., 0., 0., 0.], // 1
+            vec![0., 78., 0., 0., 0., 22.*a, 0., 27., 0., 0., 0., -13.*a], // 2
+            vec![0., 0., 78., 0., -22.*a, 0., 0., 0., 27., 0., 13.*a, 0.], // 3
+            vec![0., 0., 0., 70.*rxsq, 0., 0., 0., 0., 0., -35.*rxsq, 0., 0.], // 4
+            vec![0., 0., -22.*a, 0., 8.*a.powi(2), 0., 0., 0., -13.*a, 0., -6.*a.powi(2), 0.], // 5
+            vec![0., -22.*a, 0., 0., 0., 8.*a.powi(2), 0., 13.*a, 0., 0., 0., -6.*a.powi(2)], // 6
+            vec![35., 0., 0., 0., 0., 0., 0., 70., 0., 0., 0., 0., 0.], // 7
+            vec![0., 27., 0., 0., 0., 13.*a, 13.*a, 0., 78., 0., 0., 0., -22.*a], // 8
+            vec![0., 0., 27., 0., -13.*a, 0., 0., 0., 78., 0., 22.*a, 0.], // 9
+            vec![0., 0., 0., -35.*rxsq, 0., 0., 0., 0., 0., 70.*rxsq, 0., 0.], // 10
+            vec![0., 0., 13.*a, 0., -6.*a.powi(2), 0., 0., 0., 22.*a, 0., 8.*a.powi(2), 0.], // 11
+            vec![0., -13.*a, 0., 0., 0., -6.*a.powi(2), 0., -22.*a, 0., 0., 0., 8.*a.powi(2)], // 12
+        ];
+        self.mass_l = scxmat(self.rho*self.a*a/105., &self.mass_l);
+
         // transform local stiffness matrix into global stiffness matrix
         self.stff_g = mul_mat(&mul_mat(&transpose(&self.rot), &self.stff_l), &self.rot);
+        
+        // transform local mass matrix into global stiffness matrix
+        self.mass_g = mul_mat(&mul_mat(&transpose(&self.rot), &self.mass_l), &self.rot);
     }
 }
