@@ -55,8 +55,7 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
     let mut e_buff = vec![0.;3];
     let mut g_buff = vec![0.;3];
     let mut i_buff = vec![0.;3];
-    let mut j_buff = 0.;
-    let mut a_buff = vec![0.;3];
+    let mut a_buff = 0.;
     let mut x_rot_buff = 0.;
 
     for mut e in config["model"].string.trim().split(',') {
@@ -79,10 +78,8 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
             g_buff = config[m[1].trim()].numeric.clone();
             // I
             i_buff = config[m[2].trim()].numeric.clone();
-            // J
-            j_buff = config[m[3].trim()].numeric.clone()[0];
             // A
-            a_buff = config[m[4].trim()].numeric.clone();
+            a_buff = config[m[4].trim()].numeric.clone()[0];
             // x_Rot
             x_rot_buff = config[m[5].trim()].numeric.clone()[0];
         }
@@ -97,8 +94,7 @@ pub fn geometry_parser(path: &str) -> (Vec<elements::Beam12>, Vec<[usize;2]>) {
                     Coord3D::new(Some(e_buff.clone())), // N/mm²
                     Coord3D::new(Some(g_buff.clone())), // N/mm²
                     Coord3D::new(Some(i_buff.clone())),
-                    j_buff,
-                    Coord3D::new(Some(a_buff.clone())), //mm²
+                    a_buff, //mm²
                 )
             );
             // reset pc

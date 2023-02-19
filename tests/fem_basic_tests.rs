@@ -9,9 +9,8 @@ fn beam12_1() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*1000., 50.*1000.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
     elem.gen_stff();
 
@@ -43,9 +42,8 @@ fn beam12_cantilever_4e() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem1 = elements::Beam12::new(
@@ -53,9 +51,8 @@ fn beam12_cantilever_4e() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem2 = elements::Beam12::new(
@@ -63,9 +60,8 @@ fn beam12_cantilever_4e() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem3 = elements::Beam12::new(
@@ -73,9 +69,8 @@ fn beam12_cantilever_4e() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -127,9 +122,8 @@ fn beam12_cantilever_4e_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem1 = elements::Beam12::new(
@@ -137,9 +131,8 @@ fn beam12_cantilever_4e_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem2 = elements::Beam12::new(
@@ -147,9 +140,8 @@ fn beam12_cantilever_4e_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem3 = elements::Beam12::new(
@@ -157,9 +149,8 @@ fn beam12_cantilever_4e_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -223,9 +214,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem1 = elements::Beam12::new(
@@ -233,9 +223,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem2 = elements::Beam12::new(
@@ -243,9 +232,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem3 = elements::Beam12::new(
@@ -253,9 +241,8 @@ fn beam12_cantilever_4e_modal() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
@@ -320,9 +307,8 @@ fn beam12_cantilever_4e_modal_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem1 = elements::Beam12::new(
@@ -330,9 +316,8 @@ fn beam12_cantilever_4e_modal_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem2 = elements::Beam12::new(
@@ -340,9 +325,8 @@ fn beam12_cantilever_4e_modal_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let elem3 = elements::Beam12::new(
@@ -350,9 +334,8 @@ fn beam12_cantilever_4e_modal_load() {
         0.,
         Coord3D::new(Some(vec![210000., 210000., 210000.])), // N/mm²
         Coord3D::new(Some(vec![79000. ,79000., 79000.])), // N/mm²
-        Coord3D::new(Some(vec![0., 5.20833e5, 5.20833e5])),
-        8.78601e5,
-        Coord3D::new(Some(vec![2500., 50.*250., 50.*250.])), //mm²
+        Coord3D::new(Some(vec![8.78601e5, 5.20833e5, 5.20833e5])),
+        2500., //mm²
     );
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
