@@ -49,9 +49,10 @@ fn main() {
     else if analysis_type == "modal" {
         // Assemble global stiffness matrix
         let stff = stsys_lib::beam12_gen_stiffness(&elems, &connections);
+        let mass = stsys_lib::beam12_gen_mass(&elems, &connections);
 
         // Solve modal analysis
-        let (freq, modes) = stsys_lib::modal_free(&stff);
+        let (freq, modes) = stsys_lib::modal_free(&mass, &stff);
 
         // Write results to file
         _ = stsys_lib::writer::write_results_modal(&result_path.unwrap(), &freq, &modes);

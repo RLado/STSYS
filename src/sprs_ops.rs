@@ -411,3 +411,61 @@ pub fn sprs_remove_column(sprs: &Sprs, col: usize) -> Sprs {
 pub fn sprs_remove_row(sprs: &Sprs, row: usize) -> Sprs {
     return rsparse::transpose(&sprs_remove_column(&rsparse::transpose(&sprs), row));
 }
+
+/// Invert square matrix
+/// 
+pub fn inv_sq(mat: &Sprs) -> Sprs {
+    let mut temp = Trpl{
+        m: mat.m,
+        n: mat.n,
+        p: Vec::new(),
+        i: Vec::new(),
+        x: Vec::new(),
+    };
+    let mut col;
+
+    for i in 0..mat.n {
+        // Generate identity column
+        col = vec![0.; mat.n];
+        col[i] = 1.;
+
+        // Solve for column
+        rsparse::lusol(&mat, &mut col, 1, 1e-12);
+        
+        // Append column to temp
+        for j in 0..mat.n {
+            temp.append(j, i, col[j]);
+        }
+    }
+    
+    return temp.to_sprs();
+}
+
+/// Invert positive definite matrix
+/// 
+pub fn inv_pos_def(mat: &Sprs) -> Sprs {
+    let mut temp = Trpl{
+        m: mat.m,
+        n: mat.n,
+        p: Vec::new(),
+        i: Vec::new(),
+        x: Vec::new(),
+    };
+    let mut col;
+
+    for i in 0..mat.n {
+        // Generate identity column
+        col = vec![0.; mat.n];
+        col[i] = 1.;
+
+        // Solve for column
+        rsparse::cholsol(&mat, &mut col, 0);
+        
+        // Append column to temp
+        for j in 0..mat.n {
+            temp.append(j, i, col[j]);
+        }
+    }
+    
+    return temp.to_sprs();
+}

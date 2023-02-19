@@ -206,7 +206,6 @@ fn beam12_cantilever_4e_load() {
     );
 }
 
-/*
 #[test]
 fn beam12_cantilever_4e_modal() {
     // build model
@@ -253,50 +252,53 @@ fn beam12_cantilever_4e_modal() {
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
 
+    // assemble global mass matrix
+    let mass = stsys_lib::beam12_gen_mass(&vec![elem0.clone(), elem1.clone(), elem2.clone(), elem3.clone()], &connections);
+
     // assemble global stiffness matrix
     let stff = stsys_lib::beam12_gen_stiffness(&vec![elem0, elem1, elem2, elem3], &connections);
 
     // solve the model
-    let (mut freq, modes) = stsys_lib::modal_free(&stff);
+    let (freq, modes) = stsys_lib::modal_free(&mass, &stff);
 
     // check results (NEED VERIFICATION!)
     dbg!(&freq);
     dbg!(&modes);
-    let mut gt = vec![
-        -2.65851622368382e-05,
-        -2.04337832783118e-05,
-        -5.26292332509211e-07,
-        6.90674711719440e-06,
-        2.30665474477819e-05,
-        5.48687222883322e-05,
-        802128.623638435,
-        1592027.79885425,
-        1592027.79889512,
-        2902128.62362539,
-        5497871.37638022,
-        7597871.37638004,
-        13054606.2815968,
-        13054606.2816378,
-        48719051.6758052,
-        48719051.6758665,
-        106048247.346345,
-        383686163.346342,
-        726865500.653718,
-        1004503416.65370,
-        313637831054.392,
-        313637831054.393,
-        343906807930.745,
-        343906807930.745,
-        647765746177.055,
-        647765746177.055,
-        948147235456.339,
-        948147235456.340,
-        1191980957851.76,
-        1191980957851.76
+    let gt = vec![
+        0.07442440855768964,
+        0.06740994408305259,
+        0.06221630230794882,
+        0.03913285068762656,
+        0.03250401024068036,
+        0.040480329397483424,
+        f64::NAN,
+        f64::NAN,
+        0.02213857785751406,
+        0.016820494225038767,
+        0.026100805790126202,
+        0.025378660979669985,
+        0.02468266132164015,
+        0.021978565122426894,
+        0.012545874093499155,
+        f64::NAN,
+        0.01666962310110084,
+        0.01479406979964629,
+        0.008732585400490088,
+        0.004562605265055274,
+        0.002068655051093652,
+        0.009097382995165675,
+        0.0046328019247477556,
+        0.0016720750486304153,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,    
     ];
 
-    freq.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    gt.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    //freq.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    //gt.sort_by(|a, b| a.partial_cmp(b).unwrap());
     test_utils::assert_eq_f_vec(
         &freq, 
         &gt,
@@ -350,20 +352,26 @@ fn beam12_cantilever_4e_modal_load() {
 
     let connections = vec![[0,1], [1,2], [2,3], [3,4]];
 
+    // assemble global mass matrix
+    let mass = stsys_lib::beam12_gen_mass(&vec![elem0.clone(), elem1.clone(), elem2.clone(), elem3.clone()], &connections);
+
     // assemble global stiffness matrix
     let stff = stsys_lib::beam12_gen_stiffness(&vec![elem0, elem1, elem2, elem3], &connections);
 
     // solve the model
-    let (freq, modes) = stsys_lib::modal_free(&stff);
+    let (freq, modes) = stsys_lib::modal_free(&mass, &stff);
 
     // load model --------------------------------------------------------------
     let (_, elements_l, connections_l, _, _) = parser::cfg_parser("tests/test_models/model_2.cfg");
+
+    // assemble global mass matrix
+    let mass_l = stsys_lib::beam12_gen_mass(&elements_l, &connections_l);
 
     // assemble global stiffness matrix
     let stff_l = stsys_lib::beam12_gen_stiffness(&elements_l, &connections_l);
 
     // solve the model
-    let (freq_l, modes_l) = stsys_lib::modal_free(&stff_l);
+    let (freq_l, modes_l) = stsys_lib::modal_free(&mass_l, &stff_l);
 
     // check results -----------------------------------------------------------
     test_utils::assert_eq_f_vec(
@@ -377,4 +385,3 @@ fn beam12_cantilever_4e_modal_load() {
         1e-12
     );
 }
-*/

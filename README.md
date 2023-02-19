@@ -5,7 +5,7 @@ Structural FEM analysis software.
 
 ## Features
 - Static analysis (Work in progress)
-- Free body modal analysis (Future work)
+- Free body modal analysis (Work in progress)
 
 ## Elements
 - Beam 3D element with 12 DoF (6 DoF per node)

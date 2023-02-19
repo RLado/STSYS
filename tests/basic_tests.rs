@@ -1109,3 +1109,174 @@ fn eigen_9() {
         );
     }
 }
+
+#[test]
+fn inv_sq_1() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat01.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_sq_2() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat02.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_sq_3() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat03.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_sq_4() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat04.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_sq_5() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat05.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_sq_6() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat06.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_sq_7() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat07.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+#[ignore]
+fn inv_sq_8() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat08.sprs").unwrap();
+
+    let inv = sprs_ops::inv_sq(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_pos_def_1() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat01.sprs").unwrap();
+
+    let inv = sprs_ops::inv_pos_def(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_pos_def_2() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat03.sprs").unwrap();
+
+    let inv = sprs_ops::inv_pos_def(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_pos_def_3() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat04.sprs").unwrap();
+
+    let inv = sprs_ops::inv_pos_def(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+fn inv_pos_def_4() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat07.sprs").unwrap();
+
+    let inv = sprs_ops::inv_pos_def(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
+
+#[test]
+#[ignore]
+fn inv_pos_def_5() {
+    let mut s = Sprs::new();
+    s.load("tests/test_assets/mat08.sprs").unwrap();
+
+    let inv = sprs_ops::inv_pos_def(&s);
+    test_utils::assert_eq_f2d_vec(
+        &mat_math::mul_mat(&s.to_dense(), &inv.to_dense()),
+        &sprs_ops::eye(s.n).to_dense(),
+        1e-10
+    );
+}
